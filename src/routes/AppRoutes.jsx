@@ -19,6 +19,7 @@ import AdminLayout from "../components/admin/Layout/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminCatalog from "../pages/admin/AdminCatalog";
 import AdminSales from "../pages/admin/AdminSales";
+import AdminContent from "../pages/admin/AdminContent";
 
 export default function App() {
     return (
@@ -48,6 +49,7 @@ export default function App() {
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/catalog" element={<AdminCatalog />} />
                     <Route path="/admin/sales" element={<AdminSales />} />
+                    <Route path="/admin/content" element={<AdminContent />} />
                 </Route>
 
             </Routes>

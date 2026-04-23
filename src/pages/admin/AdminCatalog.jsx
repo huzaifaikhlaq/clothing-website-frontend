@@ -59,7 +59,7 @@ const Catalog = () => {
 
     return (
         <main className="md:ml-72 min-h-screen bg-[#F7F7F5]">
-            <div className="p-6 md:p-12 max-w-[1400px] mx-auto">
+            <div className="px-6 md:px-12 max-w-[1400px] mx-auto">
                 {/* Hero Header */}
                 <section className="mb-16">
                     <div className="flex flex-col md:flex-row justify-between items-end gap-8">

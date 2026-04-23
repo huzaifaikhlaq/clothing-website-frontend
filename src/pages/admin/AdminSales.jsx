@@ -59,7 +59,7 @@ const AdminSales = () => {
     return (
         <main className="md:ml-72 bg-[#F7F7F5] min-h-screen">
             {/* Header & KPI Section */}
-            <section className="p-6 md:p-12 max-w-[1400px] mx-auto">
+            <section className="px-6 md:px-12 max-w-[1400px] mx-auto">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <div>
                         <h1 className="font-headline text-5xl md:text-6xl tracking-tight mb-2 text-[#1a1c1c]">Sales & Orders</h1>
