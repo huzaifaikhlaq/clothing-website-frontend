@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductCard from './ProductCard';
 
-const ProductGrid = ({ products, layout = "grid" }) => {
+const ProductGrid = ({ products }) => {
 
     if (!products || products.length === 0) {
         return (
@@ -14,23 +14,11 @@ const ProductGrid = ({ products, layout = "grid" }) => {
     return (
         <section className="w-full  py-8">
 
-            {/* ✅ GRID LAYOUT (Category Page) */}
-            {layout === "grid" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-                    {products.map((item) => (
-                        <ProductCard key={item.id} product={item} />
-                    ))}
-                </div>
-            )}
-
-            {/* ✅ SINGLE ROW LAYOUT (Product Page) */}
-            {layout === "row" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:gap-x-4 gap-y-7">
-                    {products.map((item) => (
-                        <ProductCard key={item.id} product={item} />
-                    ))}
-                </div>
-            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+                {products.map((item) => (
+                    <ProductCard key={item.id} product={item} />
+                ))}
+            </div>
 
         </section>
     );

@@ -176,7 +176,7 @@ const CategoryPage = () => {
 
                 {/* PRODUCT GRID */}
                 {paginatedProducts.length > 0 ? (
-                    <ProductGrid products={paginatedProducts} layout="grid" />
+                    <ProductGrid products={paginatedProducts}  />
                 ) : (
                     <div className="py-20 text-center text-zinc-400 border border-dashed border-zinc-200 rounded-lg">
                         No items found matching your selection.
