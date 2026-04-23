@@ -14,7 +14,7 @@ const Products = [
     { id: "p10", title: "Relaxed Fit Hoodie", price: 140, originalPrice: null, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7", badge: "", gender: "men", category: "tops", color: "gray" },
 ];
 
-const ProductPage = () => {
+const ProductDetail = () => {
     return (
         <main className="pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
             {/* Breadcrumb */}
@@ -45,7 +45,7 @@ const ProductPage = () => {
                         />
                     </div>
                     <div >
-                        <ProductGrid products={Products.slice(5, 9)} layout="row" />
+                        <ProductGrid products={Products.slice(5, 9)} />
                     </div>
                 </div>
 
@@ -139,11 +139,11 @@ const ProductPage = () => {
             <section className="mt-24">
                 <h2 className="font-headline text-2xl mb-12 italic tracking-tight">You May Also Like</h2>
 
-                <ProductGrid products={Products.slice(0, 4)} layout="row" />
+                <ProductGrid products={Products.slice(0, 4)} />
 
             </section>
         </main >
     );
 };
 
-export default ProductPage;
+export default ProductDetail

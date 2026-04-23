@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TbShoppingBag, TbSearch, TbUser, TbX } from "react-icons/tb";
+import { Link } from 'react-router-dom';
 
 export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -35,9 +36,9 @@ export default function Header() {
                                 <TbSearch className="text-xl md:text-2xl" />
                             </button>
                         )}
-                        <button className="text-zinc-900 dark:text-zinc-100 hover:opacity-60">
+                        <Link to="/profile" className="text-zinc-900 dark:text-zinc-100 hover:opacity-60">
                             <TbUser className="text-xl md:text-2xl" />
-                        </button>
+                        </Link>
                         <button className="relative text-zinc-900 dark:text-zinc-100 hover:opacity-60">
                             <TbShoppingBag className="text-xl md:text-2xl" />
                             <span className="absolute -top-1 -right-1 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
