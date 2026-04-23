@@ -64,8 +64,8 @@ const Catalog = () => {
                 <section className="mb-16">
                     <div className="flex flex-col md:flex-row justify-between items-end gap-8">
                         <div className="max-w-2xl">
-                            <h2 className="font-headline text-7xl md:text-8xl tracking-tighter text-[#1a1c1c] mb-4 leading-none">Catalog</h2>
-                            <p className="text-[#777777] max-w-sm font-label text-sm leading-relaxed uppercase tracking-tight">
+                            <h2 className="font-headline text-5xl md:text-6xl tracking-tighter text-[#1a1c1c] mb-3 leading-none">Catalog</h2>
+                            <p className="text-[#777777] max-w-sm font-label text-sm leading-tight uppercase tracking-tight">
                                 Curating the finest silhouettes for the modern monolith. Manage your global inventory across five continents.
                             </p>
                         </div>

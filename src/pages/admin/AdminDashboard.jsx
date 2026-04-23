@@ -22,11 +22,11 @@ const AdminDashboard = () => {
             <main className="flex-1 md:ml-72 flex flex-col min-w-0">
 
                 {/* Content Canvas */}
-                <div className="p-6 md:p-12 max-w-7xl mx-auto space-y-12 w-full">
+                <div className="px-6 md:px-12 max-w-7xl mx-auto space-y-12 w-full">
                     {/* Header Section */}
                     <section className="flex flex-col md:flex-row justify-between items-end gap-y-4 lg:gap-6">
                         <div className="space-y-2 w-full">
-                            <h2 className="font-headline text-5xl lg:text-6xl text-[#1a1c1c]">Performance Summary</h2>
+                            <h2 className="font-headline text-5xl md:text-6xl text-[#1a1c1c]">Performance Summary</h2>
                             <p className="text-[#777777] font-label text-sm tracking-wide">Last updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                         </div>
                         <button className="whitespace-nowrap py-3 px-8 bg-black text-[#e5e2e1] text-[11px] uppercase tracking-[0.2em] font-label font-bold transition-all hover:bg-[#333] active:scale-95">

@@ -20,6 +20,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminCatalog from "../pages/admin/AdminCatalog";
 import AdminSales from "../pages/admin/AdminSales";
 import AdminContent from "../pages/admin/AdminContent";
+import AdminSetting from "../pages/admin/AdminSetting";
 
 export default function App() {
     return (
@@ -50,6 +51,7 @@ export default function App() {
                     <Route path="/admin/catalog" element={<AdminCatalog />} />
                     <Route path="/admin/sales" element={<AdminSales />} />
                     <Route path="/admin/content" element={<AdminContent />} />
+                    <Route path="/admin/settings" element={<AdminSetting />} />
                 </Route>
 
             </Routes>
