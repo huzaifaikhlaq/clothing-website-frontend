@@ -14,7 +14,7 @@ const AdminNavbar = ({ setSidebarOpen }) => {
         if (path.includes("/sales")) return "Sales";
         if (path.includes("/content")) return "Content";
         if (path.includes("/settings")) return "Settings";
-        return "Dashboard";
+        return "404";
     };
 
     return (

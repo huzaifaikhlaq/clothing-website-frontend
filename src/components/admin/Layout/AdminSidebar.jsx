@@ -6,7 +6,7 @@ import { IoMdClose } from "react-icons/io";
 
 const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
     const navItems = [
-        { name: 'Overview', path: '/admin', icon: <LuLayoutDashboard /> },
+        { name: 'Overview', path: '/admin/overview', icon: <LuLayoutDashboard /> },
         { name: 'Catalog', path: '/admin/catalog', icon: <MdOutlineInventory2 /> },
         { name: 'Sales', path: '/admin/sales', icon: <MdOutlinePayments /> },
         { name: 'Content', path: '/admin/content', icon: <MdOutlineArticle /> },

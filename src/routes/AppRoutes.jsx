@@ -15,7 +15,7 @@ import Auth from "../pages/Auth";
 import Profile from "../pages/Profile";
 
 // 404 page 
-import NotFoundPage from "../pages/NotFoundedPage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 // Admin Pages 
 import AdminLayout from "../components/admin/Layout/AdminLayout";
@@ -24,6 +24,8 @@ import AdminCatalog from "../pages/admin/AdminCatalog";
 import AdminSales from "../pages/admin/AdminSales";
 import AdminContent from "../pages/admin/AdminContent";
 import AdminSetting from "../pages/admin/AdminSetting";
+import AddProduct from "../pages/admin/AddProduct";
+import AdminNotFound from "../pages/admin/AdminNotFound";
 
 
 export default function App() {
@@ -42,7 +44,7 @@ export default function App() {
                     <Route path="/collections" element={<CategoryPage />} />
                     <Route path="/collections/:gender" element={<CategoryPage />} />
                     <Route path="/collections/:gender/:subCategory" element={<CategoryPage />} />
-                    
+
                     <Route path="/product/:id" element={<ProductDetail />} />
                     <Route path="/profile" element={<Profile />} />
 
@@ -53,19 +55,23 @@ export default function App() {
                     <Route path="/review" element={<ReviewOrder />} /> */}
 
                     {/* 404 Page  */}
-                    <Route path="*" element={<NotFoundPage/>} />
+                    <Route path="*" element={<NotFoundPage />} />
 
                 </ Route>
 
                 {/* Admin Layout  */}
                 <Route element={<AdminLayout />}>
-                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/overview" element={<AdminDashboard />} />
                     <Route path="/admin/catalog" element={<AdminCatalog />} />
                     <Route path="/admin/sales" element={<AdminSales />} />
                     <Route path="/admin/content" element={<AdminContent />} />
                     <Route path="/admin/settings" element={<AdminSetting />} />
+
+                    {/* Admin 404 page */}
+                    <Route path="*" element={<AdminNotFound />} />
                 </Route>
 
+                <Route path="/admin/addproduct" element={<AddProduct />} />
             </Routes>
         </BrowserRouter>
     );
