@@ -14,6 +14,9 @@ import ReviewOrder from "../pages/ReviewOrder";
 import Auth from "../pages/Auth";
 import Profile from "../pages/Profile";
 
+// 404 page 
+import NotFoundPage from "../pages/NotFoundedPage";
+
 // Admin Pages 
 import AdminLayout from "../components/admin/Layout/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
@@ -21,6 +24,7 @@ import AdminCatalog from "../pages/admin/AdminCatalog";
 import AdminSales from "../pages/admin/AdminSales";
 import AdminContent from "../pages/admin/AdminContent";
 import AdminSetting from "../pages/admin/AdminSetting";
+
 
 export default function App() {
     return (
@@ -49,6 +53,7 @@ export default function App() {
                     <Route path="/review" element={<ReviewOrder />} /> */}
 
                     {/* 404 Page  */}
+                    <Route path="*" element={<NotFoundPage/>} />
 
                 </ Route>
 
