@@ -41,7 +41,7 @@ const Profile = () => {
     };
 
     return (
-        <main className="pt-16 md:pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto min-h-screen">
+        <main className=" p-4 md:p-8  mx-auto min-h-screen">
             {/* Header Section */}
             <section className="mb-10 md:mb-12">
                 <h1 className="font-headline italic text-3xl sm:text-4xl md:text-6xl text-black mb-3 md:mb-5">

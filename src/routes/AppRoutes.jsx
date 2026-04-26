@@ -32,20 +32,27 @@ export default function App() {
 
 
                 {/* Layout wrapper */}
-                {/* < Route element={<Layout />}>
+                < Route element={<Layout />}>
                     <Route path="/home" element={<Home />} />
-                    <Route path="/:category" element={<CategoryPage />} />
+                    {/* Collections  */}
+                    <Route path="/collections" element={<CategoryPage />} />
+                    <Route path="/collections/:gender" element={<CategoryPage />} />
+                    <Route path="/collections/:gender/:subCategory" element={<CategoryPage />} />
+                    
                     <Route path="/product/:id" element={<ProductDetail />} />
-                    <Route path="/profile" element={<Profile />} /> */}
+                    <Route path="/profile" element={<Profile />} />
 
-                {/* Checkout flow */}
-                {/* <Route path="/cart" element={<Cart />} />
+                    {/* Checkout flow */}
+                    {/* <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/payment" element={<PaymentPage />} />
                     <Route path="/review" element={<ReviewOrder />} /> */}
 
-                {/* </ Route> */}
+                    {/* 404 Page  */}
 
+                </ Route>
+
+                {/* Admin Layout  */}
                 <Route element={<AdminLayout />}>
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/catalog" element={<AdminCatalog />} />

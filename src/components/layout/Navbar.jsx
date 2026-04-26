@@ -1,19 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TbShoppingBag, TbSearch, TbUser, TbX } from "react-icons/tb";
 import { Link } from 'react-router-dom';
 
 export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+
+    useEffect(() => {
+
+        const controlNavbar = () => {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+
+                setIsVisible(false);
+            } else {
+                setIsVisible(true);
+            }
+            setLastScrollY(currentScrollY);
+        };
+        window.addEventListener('scroll', controlNavbar);
+        return () => {
+            window.removeEventListener('scroll', controlNavbar);
+        };
+    }, [lastScrollY]);
 
     return (
-        <nav className="sticky top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 h-14 md:h-16 flex items-center">
+        <nav className={`sticky top-0  w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 h-14 md:h-16  flex items-center transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+            
             <div className="max-w-[1440px] mx-auto flex justify-between items-center px-4 md:px-8 w-full">
 
                 {/* LOGO */}
                 <div className="flex-shrink-0">
-                    <h1 className="font-serif italic text-lg md:text-2xl tracking-[0.15em] cursor-pointer text-zinc-900 dark:text-zinc-100">
+                    <Link to="/home" className="font-serif italic text-lg md:text-2xl tracking-[0.15em] cursor-pointer text-zinc-900 dark:text-zinc-100">
                         VOIRE
-                    </h1>
+                    </Link>
                 </div>
 
                 {/* RIGHT SIDE */}

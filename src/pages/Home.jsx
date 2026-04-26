@@ -1,10 +1,27 @@
-import { MdOutlineLocalShipping } from "react-icons/md";
-import { MdOutlineRefresh } from "react-icons/md"; // correct refresh icon
+import { Link } from 'react-router-dom';
 
+import { MdOutlineLocalShipping } from "react-icons/md";
+import { MdOutlineRefresh } from "react-icons/md";
 import { PiPackageBold } from "react-icons/pi";
 import { RiVerifiedBadgeLine } from "react-icons/ri";
 
+import ProductGrid from '../components/product/ProductGrid';
+
 const Home = () => {
+
+    const allProducts = [
+        { id: "p1", title: "Sculptural Linen Vest", description: "Regular fit | Womens", price: 195, originalPrice: null, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "NEW", gender: "women", category: "tops", color: "white" },
+        { id: "p10", title: "Relaxed Fit Hoodie", description: "Relaxed fit | Mens", price: 140, originalPrice: null, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7", badge: "", gender: "men", category: "tops", color: "gray" },
+        { id: "p3", title: "Striped Summer Shorts", description: "Easy fit | Junior", price: 25, originalPrice: null, image: "https://images.unsplash.com/photo-1554342321-0776d282ceac?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2lkfGVufDB8fDB8fHww", badge: "", gender: "junior", category: "bottoms", color: "blue" },
+        { id: "p4", title: "Fine Knit Cashmere Tee", description: "Premium fit | Mens", price: 350, originalPrice: null, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633", badge: "", gender: "men", category: "tops", color: "gray" }
+    ]
+
+    const categoryTiles = [
+        { name: "Mens", link: "/collections/men" },
+        { name: "Womens", link: "/collections/women" },
+        { name: "Junior", link: "/collections/junior" },
+    ];
+
     return (
         <div className="">
             <section className="flex flex-col md:flex-row min-h-[91vh] bg-zinc-50 overflow-hidden">
@@ -34,22 +51,34 @@ const Home = () => {
 
             {/* Category Tiles */}
             <section className="px-6 py-24 md:px-12 bg-white">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-[1440px] mx-auto">
-                    {['Women', 'Men', 'Accessories', 'New In'].map((cat) => (
-                        <a key={cat} className="group cursor-pointer block" href="#">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 max-w-[1440px] mx-auto">
+                    {categoryTiles.map((cat) => (
+                        <Link
+                            key={cat.name}
+                            to={cat.link}
+                            className="group cursor-pointer block"
+                        >
                             <div className="aspect-[3/4] bg-zinc-100 overflow-hidden mb-4 relative">
                                 <img
-                                    alt={cat}
-                                    className="w-full h-full object-cover transition-transform duration-[1.5s] cubic-bezier(0.2, 1, 0.3, 1) group-hover:scale-110"
-                                    src={`https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2670&auto=format&fit=crop`}
+                                    alt={cat.name}
+                                    className="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.2,1,0.3,1)] group-hover:scale-110"
+                                    src={
+                                        cat.name === "Mens"
+                                            ? "https://images.unsplash.com/photo-1505022610485-0249ba5b3675"
+                                            : cat.name === "Womens"
+                                                ? "https://plus.unsplash.com/premium_photo-1689371952452-c88c72464115?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8d29tZW4lMjBmYXNoaW9ufGVufDB8fDB8fHww"
+                                                : "https://plus.unsplash.com/premium_photo-1681842331029-2e262fb2aa22?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8Y2hpbGR8ZW58MHx8MHx8fDA%3D"
+                                    }
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="font-serif italic text-xl text-zinc-900">{cat}</span>
-                                <span className="material-symbols-outlined text-sm opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">east</span>
+                                <span className="font-serif italic text-xl text-zinc-900">{cat.name}</span>
+                                <span className="material-symbols-outlined text-sm opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                                    east
+                                </span>
                             </div>
-                        </a>
+                        </Link>
                     ))}
                 </div>
             </section>
@@ -87,31 +116,8 @@ const Home = () => {
                         <a className="font-label text-[10px] uppercase tracking-widest border-b border-zinc-900 pb-1 hover:text-zinc-500 hover:border-zinc-300 transition-colors" href="#">View All</a>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-16 md:gap-x-10">
-                        {[1, 2, 3, 4].map((item) => (
-                            <div key={item} className="group cursor-pointer">
-                                <div className="aspect-[3/4] bg-zinc-50 mb-6 relative overflow-hidden">
-                                    <img
-                                        alt="Product showcase"
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                                        src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=2672&auto=format&fit=crop"
-                                    />
-                                    {/* Quick Add Button - Appears on Hover */}
-                                    <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                                        <button className="w-full bg-white/90 backdrop-blur-md text-zinc-900 py-3 text-[10px] uppercase tracking-widest font-bold shadow-xl">
-                                            Quick Add +
-                                        </button>
-                                    </div>
-                                    <button className="absolute top-4 right-4 text-zinc-900 bg-white/80 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white">
-                                        <span className="material-symbols-outlined text-[18px]">favorite</span>
-                                    </button>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <h4 className="font-label text-[11px] uppercase tracking-wider font-bold text-zinc-800">Sculpted Wool Blazer</h4>
-                                    <p className="font-sans text-xs text-zinc-500 font-medium">$420.00</p>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="">
+                        <ProductGrid products={allProducts} />
                     </div>
                 </div>
             </section>
@@ -132,8 +138,8 @@ const Home = () => {
                     ))}
                 </div>
             </section>
-        </div>
+        </div >
     )
 }
 
-export default Home
+export default Home 
