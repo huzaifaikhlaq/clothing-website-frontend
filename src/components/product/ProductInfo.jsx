@@ -1,6 +1,7 @@
 import React from 'react';
 
-const ProductInfo = ({ title, price, originalPrice }) => {
+const ProductInfo = ({ title, description, price, originalPrice }) => {
+
     // Format currency
     const formatPrice = (amount) => {
         return new Intl.NumberFormat('en-PK', {
@@ -14,6 +15,10 @@ const ProductInfo = ({ title, price, originalPrice }) => {
             <h3 className="text-sm font-medium text-gray-900 italic">
                 {title}
             </h3>
+
+            <p className="text-xs text-gray-400">
+                {description}
+            </p>
 
             <div className="flex items-center space-x-2">
                 <span className="text-sm font-semibold text-black">

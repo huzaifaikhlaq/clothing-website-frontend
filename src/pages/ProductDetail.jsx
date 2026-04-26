@@ -2,17 +2,18 @@ import { MdOutlineExpandMore } from "react-icons/md";
 import ProductGrid from '../components/product/ProductGrid';
 
 const Products = [
-    { id: "p1", title: "Sculptural Linen Vest", price: 195, originalPrice: null, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "NEW", gender: "women", category: "tops", color: "white" },
-    { id: "p2", title: "Silk Bias Cut Top", price: 280, originalPrice: null, image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b", badge: "", gender: "women", category: "tops", color: "black" },
-    { id: "p3", title: "Structured Poplin Shirt", price: 120, originalPrice: 210, image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105", badge: "SALE", gender: "women", category: "tops", color: "blue" },
-    { id: "p4", title: "Fine Knit Cashmere Tee", price: 350, originalPrice: null, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633", badge: "", gender: "men", category: "tops", color: "gray" },
-    { id: "p5", title: "Linen Relaxed Trousers", price: 210, originalPrice: 250, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "SALE", gender: "women", category: "bottoms", color: "beige" },
-    { id: "p6", title: "Wide Leg Denim Jeans", price: 165, originalPrice: null, image: "https://images.unsplash.com/photo-1542272604-787c3835535d", badge: "NEW", gender: "women", category: "bottoms", color: "blue" },
-    { id: "p7", title: "Cotton Oversized Shirt", price: 110, originalPrice: null, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab", badge: "", gender: "women", category: "tops", color: "white" },
-    { id: "p8", title: "Minimal Black Tank", price: 75, originalPrice: null, image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c", badge: "NEW", gender: "women", category: "tops", color: "black" },
-    { id: "p9", title: "Classic White Tee", price: 60, originalPrice: 80, image: "https://images.unsplash.com/photo-1520975916090-3105956dac38", badge: "SALE", gender: "men", category: "tops", color: "white" },
-    { id: "p10", title: "Relaxed Fit Hoodie", price: 140, originalPrice: null, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7", badge: "", gender: "men", category: "tops", color: "gray" },
-];
+    { id: "p1", title: "Sculptural Linen Vest", description: "Regular fit | Womens", price: 195, originalPrice: null, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "NEW", gender: "women", category: "tops", color: "white" },
+    { id: "p2", title: "Relaxed Fit Hoodie", description: "Relaxed fit | Mens", price: 140, originalPrice: null, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7", badge: "", gender: "men", category: "tops", color: "gray" },
+    { id: "p3", title: "Striped Summer Shorts", description: "Easy fit | Junior", price: 25, originalPrice: null, image: "https://images.unsplash.com/photo-1554342321-0776d282ceac?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2lkfGVufDB8fDB8fHww", badge: "", gender: "junior", category: "bottoms", color: "blue" },
+    { id: "p4", title: "Fine Knit Cashmere Tee", description: "Premium fit | Mens", price: 350, originalPrice: null, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633", badge: "", gender: "men", category: "tops", color: "gray" },
+    { id: "p5", title: "Linen Relaxed Trousers", description: "Relaxed fit | Womens", price: 210, originalPrice: 250, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "SALE", gender: "women", category: "bottoms", color: "beige" },
+    { id: "p6", title: "Wide Leg Denim Jeans", description: "Loose fit | Womens", price: 165, originalPrice: null, image: "https://images.unsplash.com/photo-1542272604-787c3835535d", badge: "NEW", gender: "women", category: "bottoms", color: "blue" },
+    { id: "p7", title: "Cotton Oversized Shirt", description: "Oversized fit | Womens", price: 110, originalPrice: null, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab", badge: "", gender: "women", category: "tops", color: "white" },
+    { id: "p8", title: "Minimal Black Tank", description: "Slim fit | Womens", price: 75, originalPrice: null, image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c", badge: "NEW", gender: "women", category: "tops", color: "black" },
+    { id: "p9", title: "Classic White Tee", description: "Regular fit | Mens", price: 60, originalPrice: 80, image: "https://images.unsplash.com/photo-1520975916090-3105956dac38", badge: "SALE", gender: "men", category: "tops", color: "white" },
+    { id: "p10", title: "Relaxed Fit Hoodie", description: "Relaxed fit | Mens", price: 140, originalPrice: null, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7", badge: "", gender: "men", category: "tops", color: "gray" },
+    { id: "p11", title: "Relaxed Cargo Pants", description: "Utility fit | Mens", price: 135, originalPrice: null, image: "https://images.unsplash.com/photo-1624371438099-6e6a2a6f0f1f", badge: "", gender: "men", category: "bottoms", color: "olive" },
+]
 
 const ProductDetail = () => {
     return (

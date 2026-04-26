@@ -1,11 +1,11 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import ProductImage from './ProductImage';
 import ProductInfo from './ProductInfo';
 
 const ProductCard = ({ product }) => {
 
     return (
-        <article className="group cursor-pointer flex flex-col">
+        <Link to={`/product/${product.id}`} className="group cursor-pointer flex flex-col">
             <ProductImage
                 src={product.image}
                 alt={`Image of ${product.title}`}
@@ -14,10 +14,11 @@ const ProductCard = ({ product }) => {
 
             <ProductInfo
                 title={product.title}
+                description={product.description}
                 price={product.price}
                 originalPrice={product.originalPrice}
             />
-        </article>
+        </Link>
     );
 };
 
