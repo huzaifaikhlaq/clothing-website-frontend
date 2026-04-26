@@ -1,4 +1,4 @@
-const allProducts = [
+const products = [
     { id: "p1", title: "Sculptural Linen Vest", description: "Regular fit | Womens", price: 195, originalPrice: null, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "NEW", gender: "women", category: "tops", color: "white" },
     { id: "p2", title: "Silk Bias Cut Top", description: "Slim fit | Womens", price: 280, originalPrice: null, image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b", badge: "", gender: "women", category: "tops", color: "black" },
     { id: "p3", title: "Structured Poplin Shirt", description: "Oversized fit | Womens", price: 120, originalPrice: 210, image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105", badge: "SALE", gender: "women", category: "tops", color: "blue" },
