@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { IoMdSearch, IoMdArrowDropdown, IoMdArrowBack, IoMdArrowForward, IoMdClose } from "react-icons/io";
 import { MdSort, MdFilterList } from "react-icons/md";
 import ProductGrid from "../../components/product/ProductGrid";
@@ -77,9 +78,9 @@ const AdminCatalog = () => {
                                 Curating silhouettes for the modern monolith. Global inventory management.
                             </p>
                         </div>
-                        <button className="w-full md:w-auto bg-black text-white px-10 py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#333] transition-all">
+                        <Link to="/admin/addproduct" className="w-full md:w-auto bg-black text-white px-10 py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#333] transition-all">
                             Add New Piece
-                        </button>
+                        </Link>
                     </div>
                 </section>
 
