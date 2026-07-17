@@ -27,6 +27,9 @@ import AdminSetting from "../pages/admin/AdminSetting";
 import AddProduct from "../pages/admin/AddProduct";
 import AdminNotFound from "../pages/admin/AdminNotFound";
 
+// Middlewares 
+import AuthProtected from "../middlewares/authProtected";
+
 
 export default function App() {
     return (
@@ -34,25 +37,25 @@ export default function App() {
             <Routes>
 
                 {/* Auth page (no layout) */}
-                {/* <Route path="/" element={<Auth />} /> */}
+                <Route path="/auth" element={<Auth />} />
 
 
                 {/* Layout wrapper */}
                 < Route element={<Layout />}>
-                    <Route path="/home" element={<Home />} />
+                    <Route path="/" element={<Home />} />
                     {/* Collections  */}
                     <Route path="/collections" element={<CategoryPage />} />
                     <Route path="/collections/:gender" element={<CategoryPage />} />
                     <Route path="/collections/:gender/:subCategory" element={<CategoryPage />} />
 
                     <Route path="/product/:id" element={<ProductDetail />} />
-                    <Route path="/profile" element={<Profile />} />
-
+                    {/* auth middleware */}
+                    <Route path="/profile" element={<AuthProtected><Profile /></AuthProtected>} />
                     {/* Checkout flow */}
-                    {/* <Route path="/cart" element={<Cart />} />
+                    <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/payment" element={<PaymentPage />} />
-                    <Route path="/review" element={<ReviewOrder />} /> */}
+                    <Route path="/review" element={<ReviewOrder />} />
 
                     {/* 404 Page  */}
                     <Route path="*" element={<NotFoundPage />} />

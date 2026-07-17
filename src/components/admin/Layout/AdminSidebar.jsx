@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { MdOutlineInventory2, MdOutlinePayments, MdOutlineArticle } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -29,7 +29,7 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
                 {/* Header */}
                 <div className="p-8 border-b border-white/10 flex justify-between items-center">
                     <div>
-                        <span className="font-headline text-3xl italic tracking-widest block uppercase">VOIRE</span>
+                        <Link to="/home" className="font-headline text-3xl italic tracking-widest block uppercase">VOIRE</Link>
                         <span className="text-[10px] font-label uppercase tracking-widest text-[#777777] mt-2 block">
                             Editorial Intelligence
                         </span>

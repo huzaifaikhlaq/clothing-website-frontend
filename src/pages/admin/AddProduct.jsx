@@ -123,16 +123,16 @@ const AddProduct = () => {
                             </div>
                         </div>
                     </section>
-                </form>
+                </form> 
             </main>
 
             {/* Fixed Bottom Action Bar */}
             <nav className="fixed bottom-0 left-0 w-full h-17 flex justify-around items-stretch bg-white z-50 border-t border-[#eeeeee]">
-                <button className="flex flex-col items-center justify-center text-[#777777] w-full h-full hover:bg-[#f9f9f9] transition-all active:scale-95 duration-150">
+                <button className="flex flex-col items-center justify-center cursor-pointer text-[#777777] w-full h-full hover:bg-[#f9f9f9] transition-all active:scale-95 duration-150">
                     <span className="material-symbols-outlined mb-1 text-xl font-black"><RxCross2 /></span>
                     <span className="font-label text-[10px] uppercase tracking-[0.2em] font-bold">Discard</span>
                 </button>
-                <button className="flex flex-col items-center justify-center text-[#e5e2e1] bg-black w-full h-full hover:bg-[#1a1c1c] transition-all active:scale-95 duration-150">
+                <button className="flex flex-col items-center justify-center cursor-pointer text-[#e5e2e1] bg-black w-full h-full hover:bg-[#1a1c1c] transition-all active:scale-95 duration-150">
                     <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 1" }}><FaCheck /></span>
                     <span className="font-label text-[10px] uppercase tracking-[0.2em] font-bold">Save Product</span>
                 </button>

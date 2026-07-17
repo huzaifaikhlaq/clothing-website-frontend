@@ -27,12 +27,12 @@ export default function Header() {
 
     return (
         <nav className={`sticky top-0  w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 h-14 md:h-16  flex items-center transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-            
+
             <div className="max-w-[1440px] mx-auto flex justify-between items-center px-4 md:px-8 w-full">
 
                 {/* LOGO */}
                 <div className="flex-shrink-0">
-                    <Link to="/home" className="font-serif italic text-lg md:text-2xl tracking-[0.15em] cursor-pointer text-zinc-900 dark:text-zinc-100">
+                    <Link to="/ " className="font-serif italic text-lg md:text-2xl tracking-[0.15em] cursor-pointer text-zinc-900 dark:text-zinc-100">
                         VOIRE
                     </Link>
                 </div>
@@ -60,12 +60,12 @@ export default function Header() {
                         <Link to="/profile" className="text-zinc-900 dark:text-zinc-100 hover:opacity-60">
                             <TbUser className="text-xl md:text-2xl" />
                         </Link>
-                        <button className="relative text-zinc-900 dark:text-zinc-100 hover:opacity-60">
+                        <Link to="/cart" className="relative text-zinc-900 dark:text-zinc-100 hover:opacity-60">
                             <TbShoppingBag className="text-xl md:text-2xl" />
                             <span className="absolute -top-1 -right-1 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
                                 0
                             </span>
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
