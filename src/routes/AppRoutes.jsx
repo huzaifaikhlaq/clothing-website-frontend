@@ -25,6 +25,9 @@ import AdminSales from "../pages/admin/AdminSales";
 import AdminContent from "../pages/admin/AdminContent";
 import AdminSetting from "../pages/admin/AdminSetting";
 import AddProduct from "../pages/admin/AddProduct";
+import AddCategory from "../pages/admin/AddCategory";
+import AddCollection from "../pages/admin/AddCollection";
+
 import AdminNotFound from "../pages/admin/AdminNotFound";
 
 // Middlewares 
@@ -74,7 +77,9 @@ export default function App() {
                     <Route path="*" element={<AdminNotFound />} />
                 </Route>
 
-                <Route path="/admin/addproduct" element={<AddProduct />} />
+                <Route path="/admin/addProduct" element={<AddProduct />} />
+                <Route path="/admin/addCategory" element={<AddCategory />} />
+                <Route path="/admin/addCollection" element={<AddCollection />} />
             </Routes>
         </BrowserRouter>
     );

@@ -71,16 +71,32 @@ const AdminCatalog = () => {
 
                 {/* Hero Header */}
                 <section className="mb-10 md:mb-16">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                        <div className="max-w-2xl">
-                            <h2 className="font-headline text-4xl md:text-6xl tracking-tighter text-[#1a1c1c] mb-3 leading-none">Catalog</h2>
-                            <p className="text-[#777777] max-w-sm font-label text-[10px] md:text-sm leading-tight uppercase tracking-tight">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+                        {/* Left Side: Typography */}
+                        <div className="max-w-2xl w-full">
+                            <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl tracking-tighter text-[#1a1c1c] mb-3 leading-none">
+                                Catalog
+                            </h2>
+                            <p className="text-[#777777] max-w-sm font-label text-[11px] sm:text-xs md:text-sm leading-normal uppercase tracking-wider">
                                 Curating silhouettes for the modern monolith. Global inventory management.
                             </p>
                         </div>
-                        <Link to="/admin/addproduct" className="w-full md:w-auto bg-black text-white px-10 py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#333] transition-all">
-                            Add New Piece
-                        </Link>
+
+                        {/* Right Side: Action Buttons */}
+                        <div className="w-full md:w-auto grid grid-cols-1 sm:grid-cols-3 md:flex md:flex-row gap-3">
+                            <Link to="/admin/addCategory"
+                                className="w-full md:w-auto bg-black text-white px-6 py-4 text-center text-xs md:text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#333] transition-all" >
+                                Add Category
+                            </Link>
+                            <Link to="/admin/addCollection"
+                                className="w-full md:w-auto bg-black text-white px-6 py-4 text-center text-xs md:text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#333] transition-all" >
+                                Add Collection
+                            </Link>
+                            <Link to="/admin/addproduct"
+                                className="w-full md:w-auto bg-black text-white px-6 py-4 text-center text-xs md:text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#333] transition-all" >
+                                Add Piece
+                            </Link>
+                        </div>
                     </div>
                 </section>
 
