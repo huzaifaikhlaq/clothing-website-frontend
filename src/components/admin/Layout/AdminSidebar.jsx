@@ -29,7 +29,7 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
                 {/* Header */}
                 <div className="p-8 border-b border-white/10 flex justify-between items-center">
                     <div>
-                        <Link to="/home" className="font-headline text-3xl italic tracking-widest block uppercase">VOIRE</Link>
+                        <Link to="/" className="font-headline text-3xl italic tracking-widest block uppercase">VOIRE</Link>
                         <span className="text-[10px] font-label uppercase tracking-widest text-[#777777] mt-2 block">
                             Editorial Intelligence
                         </span>

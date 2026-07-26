@@ -1,19 +1,21 @@
 import { getAllCategories } from '../../hooks/useCategory.js';
 import { getAllCollections } from '../../hooks/useCollection.js';
-import { createProduct } from '../../hooks/useProduct.js';
+import { createProduct, updateProduct, getProductById } from '../../hooks/useProduct.js';
 import { uploadImages } from '../../hooks/useCloudinary.js';
 
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx";
-import { FaCheck, FaPlus } from "react-icons/fa6";
+import { FaCheck, FaPlus, FaSpinner } from "react-icons/fa6";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { MdExpandMore } from "react-icons/md";
 
 const AddProduct = () => {
     const navigate = useNavigate();
+    const { id } = useParams(); // Extracts product ID if editing
+    const isEditMode = Boolean(id);
 
     // File Input Refs
     const mainFileInputRef = useRef(null);
@@ -23,22 +25,15 @@ const AddProduct = () => {
     const [fieldErrors, setFieldErrors] = useState({});
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [fetchingProduct, setFetchingProduct] = useState(false);
 
-    // Main Image State
+    // Main Image State (Can be a File object or an existing URL string)
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
-    // Gallery Images State (3 additional slots)
+    // Gallery Images State (Can be File objects or URL strings)
     const [galleryFiles, setGalleryFiles] = useState([null, null, null]);
     const [galleryPreviews, setGalleryPreviews] = useState([null, null, null]);
-
-    // Cleanup Object URLs on unmount/change
-    useEffect(() => {
-        return () => {
-            if (imagePreview) URL.revokeObjectURL(imagePreview);
-            galleryPreviews.forEach(preview => preview && URL.revokeObjectURL(preview));
-        };
-    }, []);
 
     const [categories, setCategories] = useState([]);
     const [collections, setCollections] = useState([]);
@@ -55,44 +50,93 @@ const AddProduct = () => {
         category: "",
         collection: "",
         badge: "",
-        images: [],
         colors: "",
         sizes: "",
         isPublished: true,
     });
 
-    const loadCategories = async () => {
+    // Cleanup Blob URLs
+    useEffect(() => {
+        return () => {
+            if (imagePreview && imagePreview.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
+            galleryPreviews.forEach(p => p && p.startsWith("blob:") && URL.revokeObjectURL(p));
+        };
+    }, [imagePreview, galleryPreviews]);
+
+    // Load Dropdown Options
+    const loadCategoriesAndCollections = async () => {
         try {
-            const data = await getAllCategories();
-            setCategories(data?.categories || []);
+            const [catData, colData] = await Promise.all([
+                getAllCategories(),
+                getAllCollections()
+            ]);
+            setCategories(catData?.categories || []);
+            setCollections(colData?.collections || []);
         } catch (err) {
-            console.error("Error loading categories:", err);
+            console.error("Error loading categories or collections:", err);
         }
     };
 
-    const loadCollections = async () => {
+    const loadProductDetails = async () => {
+        if (!isEditMode) return;
+
         try {
-            const data = await getAllCollections();
-            setCollections(data?.collections || []);
+            setFetchingProduct(true);
+            const res = await getProductById(id);
+            const p = res.product;
+
+            setFormData({
+                title: p.title || "",
+                subtitle: p.subtitle || "",
+                sku: p.sku || "",
+                description: p.description || "",
+                price: p.price ?? "",
+                salePrice: p.salePrice ?? "",
+                stock: p.stock ?? "",
+                gender: p.gender || "",
+                category: typeof p.category === "object" ? p.category?._id : p.category || "",
+                collection: typeof p.collection === "object" ? p.collection?._id : p.collection || "",
+                badge: p.badge || "",
+                colors: Array.isArray(p.colors) ? p.colors.join(", ") : p.colors || "",
+                sizes: Array.isArray(p.sizes) ? p.sizes.join(", ") : p.sizes || "",
+                isPublished: p.isPublished ?? true,
+            });
+
+            // Handle Existing Images
+            if (p.images && p.images.length > 0) {
+                // Main image (first array item)
+                setImagePreview(p.images[0]);
+
+                // Additional gallery images
+                const galleryUrls = p.images.slice(1, 4);
+                const updatedPreviews = [null, null, null];
+                galleryUrls.forEach((url, idx) => {
+                    updatedPreviews[idx] = url;
+                });
+                setGalleryPreviews(updatedPreviews);
+            }
         } catch (err) {
-            console.error("Error loading collections:", err);
+            console.error("Error fetching product:", err);
+            setError("Failed to fetch product details.");
+        } finally {
+            setFetchingProduct(false);
         }
     };
 
     useEffect(() => {
-        loadCategories();
-        loadCollections();
-    }, []);
+        loadCategoriesAndCollections();
+        loadProductDetails();
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         if (name === "category" && value === "__add_category__") {
-            navigate("/admin/addCategory");
+            navigate("/admin/Categories/add");
             return;
         }
 
         if (name === "collection" && value === "__add_collection__") {
-            navigate("/admin/addCollection");
+            navigate("/admin/Collections/add");
             return;
         }
 
@@ -110,7 +154,7 @@ const AddProduct = () => {
     const handleMainImageChange = (e) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
-            if (imagePreview) URL.revokeObjectURL(imagePreview);
+            if (imagePreview && imagePreview.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
             setImageFile(file);
             setImagePreview(URL.createObjectURL(file));
 
@@ -122,7 +166,7 @@ const AddProduct = () => {
 
     const handleRemoveMainImage = (e) => {
         e.stopPropagation();
-        if (imagePreview) URL.revokeObjectURL(imagePreview);
+        if (imagePreview && imagePreview.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
         setImageFile(null);
         setImagePreview(null);
         if (mainFileInputRef.current) mainFileInputRef.current.value = "";
@@ -132,7 +176,9 @@ const AddProduct = () => {
     const handleGalleryImageChange = (index, e) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
-            if (galleryPreviews[index]) URL.revokeObjectURL(galleryPreviews[index]);
+            if (galleryPreviews[index] && galleryPreviews[index].startsWith("blob:")) {
+                URL.revokeObjectURL(galleryPreviews[index]);
+            }
 
             const updatedFiles = [...galleryFiles];
             updatedFiles[index] = file;
@@ -146,7 +192,9 @@ const AddProduct = () => {
 
     const handleRemoveGalleryImage = (index, e) => {
         e.stopPropagation();
-        if (galleryPreviews[index]) URL.revokeObjectURL(galleryPreviews[index]);
+        if (galleryPreviews[index] && galleryPreviews[index].startsWith("blob:")) {
+            URL.revokeObjectURL(galleryPreviews[index]);
+        }
 
         const updatedFiles = [...galleryFiles];
         updatedFiles[index] = null;
@@ -164,14 +212,27 @@ const AddProduct = () => {
     const validateAllFields = () => {
         const errors = {};
 
+        if (!imagePreview) errors.images = "Main product image is required";
         if (!formData.title?.trim()) errors.title = "Field is required";
         if (!formData.subtitle?.trim()) errors.subtitle = "Field is required";
         if (!formData.sku?.trim()) errors.sku = "Field is required";
         if (!formData.description?.trim()) errors.description = "Field is required";
 
-        if (formData.price === "" || formData.price === null || formData.price === undefined) errors.price = "Field is required";
-        if (formData.salePrice === "" || formData.salePrice === null || formData.salePrice === undefined) errors.salePrice = "Field is required";
-        if (formData.stock === "" || formData.stock === null || formData.stock === undefined) errors.stock = "Field is required";
+        if (formData.price === "" || formData.price === null || formData.price === undefined) {
+            errors.price = "Field is required";
+        }
+
+        if (formData.badge === "sale") {
+            if (formData.salePrice === "" || formData.salePrice === null || formData.salePrice === undefined) {
+                errors.salePrice = "Sale price is required when Sale badge is selected";
+            } else if (Number(formData.salePrice) >= Number(formData.price)) {
+                errors.salePrice = "Sale price must be less than regular price";
+            }
+        }
+
+        if (formData.stock === "" || formData.stock === null || formData.stock === undefined) {
+            errors.stock = "Field is required";
+        }
 
         if (!formData.category?.trim()) errors.category = "Field is required";
         if (!formData.collection?.trim()) errors.collection = "Field is required";
@@ -211,7 +272,9 @@ const AddProduct = () => {
             name: "gender",
             options: [
                 { value: "men", label: "Men" },
-                { value: "female", label: "Female" }
+                { value: "female", label: "Female" },
+                { value: "junior", label: "Junior" },
+                { value: "unisex", label: "unisex" }
             ]
         },
         {
@@ -220,27 +283,42 @@ const AddProduct = () => {
             options: [
                 { value: "new", label: "New" },
                 { value: "hot", label: "Hot" },
-                { value: "sale", label: "Sale" }
+                { value: "sale", label: "Sale" },
+                { value: "coming soon", label: "Coming Soon" }
             ]
         }
     ];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         setError("");
         setSuccess("");
 
-        const isValid = validateAllFields();
-        if (!isValid) return;
+        if (!validateAllFields()) return;
 
         try {
             setLoading(true);
 
-            // Order matters here: main image first, then the three gallery slots,
-            // with any empty slots dropped. Promise.all keeps this order in the result.
-            const filesToUpload = [imageFile, ...galleryFiles].filter(Boolean);
-            const uploadedUrls = await uploadImages(filesToUpload);
+            // Process main image URL (upload if new File, otherwise keep existing URL)
+            let mainImageUrl = imagePreview;
+            if (imageFile) {
+                const uploadedMain = await uploadImages([imageFile]);
+                mainImageUrl = uploadedMain[0];
+            }
+
+            // Process gallery image URLs (upload new Files, keep existing URLs, drop nulls)
+            const galleryUrls = await Promise.all(
+                galleryPreviews.map(async (preview, idx) => {
+                    if (galleryFiles[idx]) {
+                        const uploaded = await uploadImages([galleryFiles[idx]]);
+                        return uploaded[0];
+                    }
+                    return preview; // Keep pre-existing image string URL or null
+                })
+            );
+
+            // Combine into single array of images
+            const finalImages = [mainImageUrl, ...galleryUrls].filter(Boolean);
 
             const payload = {
                 title: formData.title,
@@ -248,7 +326,7 @@ const AddProduct = () => {
                 sku: formData.sku,
                 description: formData.description,
                 price: Number(formData.price),
-                salePrice: Number(formData.salePrice),
+                salePrice: formData.salePrice !== "" && formData.salePrice !== null ? Number(formData.salePrice) : 0,
                 stock: Number(formData.stock),
                 gender: formData.gender,
                 category: formData.category,
@@ -257,39 +335,47 @@ const AddProduct = () => {
                 colors: formData.colors.split(",").map(c => c.trim()).filter(Boolean),
                 sizes: formData.sizes.split(",").map(s => s.trim()).filter(Boolean),
                 isPublished: formData.isPublished,
-                images: uploadedUrls,
+                images: finalImages,
             };
 
-            await createProduct(payload);
+            if (isEditMode) {
+                await updateProduct(id, payload);
+                setSuccess("Product updated successfully");
+            } else {
+                await createProduct(payload);
+                setSuccess("Product created successfully");
+            }
 
-            setSuccess("Product created successfully");
-            navigate(-1);
+            setTimeout(() => {
+                navigate("/admin/catalog");
+            }, 500);
 
         } catch (err) {
-            console.log(err.response?.data || err.message);
-
-            setError(
-                err.response?.data?.message ||
-                err.message ||
-                "Failed to create product."
-            );
+            console.error(err.response?.data || err.message);
+            setError(err.response?.data?.message || err.message || "Failed to save product.");
         } finally {
             setLoading(false);
         }
     };
 
+    if (fetchingProduct) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center text-black">
+                <FaSpinner className="animate-spin text-3xl" />
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white min-h-screen text-[#1a1c1c]">
-            {/* Fixed Header */}
+            {/* Header */}
             <header className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md flex justify-between items-center px-6 py-4 border-b border-[#eeeeee]">
                 <div className="flex items-center justify-center gap-3">
                     <Link to="/admin/catalog" className="hover:bg-[#f3f3f3] transition-colors duration-200 p-2">
-                        <span className="material-symbols-outlined text-[#1a1c1c] text-lg">
-                            <IoMdArrowRoundBack />
-                        </span>
+                        <IoMdArrowRoundBack className="text-lg" />
                     </Link>
                     <h1 className="font-headline tracking-tight text-xl uppercase font-medium text-[#1a1c1c]">
-                        Add Product
+                        {isEditMode ? "Edit Product" : "Add Product"}
                     </h1>
                 </div>
             </header>
@@ -299,15 +385,16 @@ const AddProduct = () => {
                 {success && <div className="p-3 bg-green-100 border border-green-300 text-green-700 font-semibold mb-6 rounded">{success}</div>}
 
                 <form id="product-form" className="space-y-16" onSubmit={handleSubmit}>
-
-                    {/* Section 01: Imagery */}
+                    {/* Imagery Section */}
                     <section className="space-y-8">
                         <div className="flex items-baseline justify-between border-b border-[#eeeeee] pb-4">
                             <h2 className="font-headline text-3xl font-medium">Typography &amp; Imagery</h2>
                             <span className="font-label text-xs uppercase tracking-widest text-[#777777]">Section 01</span>
                         </div>
+
+                        {fieldErrors.images && <p className="text-red-500 text-xs font-semibold">{fieldErrors.images}</p>}
+
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            {/* Main File Input */}
                             <input
                                 type="file"
                                 accept="image/*"
@@ -316,18 +403,13 @@ const AddProduct = () => {
                                 className="hidden"
                             />
 
-                            {/* Main Image (Slot 1) */}
                             <div
                                 onClick={() => mainFileInputRef.current?.click()}
-                                className="md:col-span-3 aspect-[3/4] bg-[#f3f3f3] flex flex-col items-center justify-center border-2 border-dashed border-[#c6c6c6] group hover:border-black transition-colors cursor-pointer relative overflow-hidden"
+                                className={`md:col-span-3 aspect-[3/4] bg-[#f3f3f3] flex flex-col items-center justify-center border-2 border-dashed ${fieldErrors.images ? 'border-red-500' : 'border-[#c6c6c6]'} group hover:border-black transition-colors cursor-pointer relative overflow-hidden`}
                             >
                                 {imagePreview ? (
                                     <>
-                                        <img
-                                            src={imagePreview}
-                                            alt="Main Product Preview"
-                                            className="absolute inset-0 w-full h-full object-cover"
-                                        />
+                                        <img src={imagePreview} alt="Main Product Preview" className="absolute inset-0 w-full h-full object-cover" />
                                         <button
                                             type="button"
                                             onClick={handleRemoveMainImage}
@@ -338,19 +420,14 @@ const AddProduct = () => {
                                         </button>
                                     </>
                                 ) : (
-                                    <>
-                                        <div className="z-10 flex flex-col items-center text-center p-8">
-                                            <span className="material-symbols-outlined text-4xl mb-3 text-[#1a1c1c]">
-                                                <FaCloudUploadAlt />
-                                            </span>
-                                            <p className="font-label text-sm uppercase tracking-widest font-bold text-[#1a1c1c]">Upload Main Image</p>
-                                            <p className="font-body text-xs text-[#777777] mt-2">Portrait orientation (3:4) recommended</p>
-                                        </div>
-                                    </>
+                                    <div className="z-10 flex flex-col items-center text-center p-8">
+                                        <FaCloudUploadAlt className="text-4xl mb-3 text-[#1a1c1c]" />
+                                        <p className="font-label text-sm uppercase tracking-widest font-bold text-[#1a1c1c]">Upload Main Image</p>
+                                        <p className="font-body text-xs text-[#777777] mt-2">Portrait orientation (3:4) recommended</p>
+                                    </div>
                                 )}
                             </div>
 
-                            {/* Gallery Inputs & Slots (Slots 2, 3, 4) */}
                             <div className="grid grid-cols-3 md:grid-cols-1 gap-4">
                                 {[0, 1, 2].map((i) => (
                                     <div key={i} className="relative aspect-[3/4]">
@@ -367,11 +444,7 @@ const AddProduct = () => {
                                         >
                                             {galleryPreviews[i] ? (
                                                 <>
-                                                    <img
-                                                        src={galleryPreviews[i]}
-                                                        alt={`Gallery Preview ${i + 1}`}
-                                                        className="absolute inset-0 w-full h-full object-cover"
-                                                    />
+                                                    <img src={galleryPreviews[i]} alt={`Gallery Preview ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" />
                                                     <button
                                                         type="button"
                                                         onClick={(e) => handleRemoveGalleryImage(i, e)}
@@ -394,7 +467,7 @@ const AddProduct = () => {
                         </div>
                     </section>
 
-                    {/* Section 02: Core Details */}
+                    {/* Core Details */}
                     <section className="space-y-8">
                         <div className="flex items-baseline justify-between border-b border-[#eeeeee] pb-4">
                             <h2 className="text-3xl font-headline font-medium text-[#1a1c1c]">Core Details</h2>
@@ -428,21 +501,21 @@ const AddProduct = () => {
                                 <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Description</label>
                                 <textarea name="description" value={formData.description} onChange={handleChange}
                                     className={`w-full border-b ${fieldErrors.description ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] placeholder-[#b5b5b5] focus:outline-none focus:border-black transition-colors bg-transparent resize-none`}
-                                    placeholder="Crafted from Italian mulberry silk, this silhouette features..." rows={5} />
+                                    placeholder="Crafted from Italian mulberry silk..." rows={5} />
                                 {fieldErrors.description && <p className="text-red-500 text-xs mt-1">{fieldErrors.description}</p>}
                             </div>
                         </div>
                     </section>
 
-                    {/* Section 03: Pricing & Inventory Panel */}
+                    {/* Pricing & Inventory */}
                     <section className="bg-[#fdfdfd] border border-[#eeeeee] p-8 md:p-12">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="space-y-2">
-                                <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Base Price (USD)</label>
+                                <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Base Price </label>
                                 <div className="relative">
-                                    <span className="absolute left-0 bottom-2 text-[#777777] font-body">$</span>
+                                    <span className="absolute -left-1 bottom-2.5 text-[#777777] font-body">Rs</span>
                                     <input name="price" value={formData.price} onChange={handleChange}
-                                        className={`w-full border-b ${fieldErrors.price ? 'border-red-500' : 'border-[#dddddd]'} pb-2 pl-4 font-body text-base text-[#1a1c1c] placeholder-[#b5b5b5] focus:outline-none focus:border-black transition-colors bg-transparent`}
+                                        className={`w-full border-b ${fieldErrors.price ? 'border-red-500' : 'border-[#dddddd]'} pb-2 pl-4 font-body text-base text-[#1a1c1c] focus:outline-none focus:border-black bg-transparent`}
                                         placeholder="0.00" type="number" />
                                 </div>
                                 {fieldErrors.price && <p className="text-red-500 text-xs mt-1">{fieldErrors.price}</p>}
@@ -451,9 +524,9 @@ const AddProduct = () => {
                             <div className="space-y-2">
                                 <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Sale Price</label>
                                 <div className="relative">
-                                    <span className="absolute left-0 bottom-2 text-[#777777] font-body">$</span>
+                                    <span className="absolute -left-1 bottom-2.5 text-[#777777] font-body">Rs</span>
                                     <input name="salePrice" value={formData.salePrice} onChange={handleChange}
-                                        className={`w-full border-b ${fieldErrors.salePrice ? 'border-red-500' : 'border-[#dddddd]'} pb-2 pl-4 font-body text-base text-[#1a1c1c] placeholder-[#b5b5b5] focus:outline-none focus:border-black transition-colors bg-transparent`}
+                                        className={`w-full border-b ${fieldErrors.salePrice ? 'border-red-500' : 'border-[#dddddd]'} pb-2 pl-4 font-body text-base text-[#1a1c1c] focus:outline-none focus:border-black bg-transparent`}
                                         placeholder="0.00" type="number" />
                                 </div>
                                 {fieldErrors.salePrice && <p className="text-red-500 text-xs mt-1">{fieldErrors.salePrice}</p>}
@@ -462,14 +535,14 @@ const AddProduct = () => {
                             <div className="space-y-2">
                                 <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Initial Stock</label>
                                 <input name="stock" value={formData.stock} onChange={handleChange}
-                                    className={`w-full border-b ${fieldErrors.stock ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] placeholder-[#b5b5b5] focus:outline-none focus:border-black transition-colors bg-transparent`}
+                                    className={`w-full border-b ${fieldErrors.stock ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] focus:outline-none focus:border-black bg-transparent`}
                                     placeholder="0" type="number" />
                                 {fieldErrors.stock && <p className="text-red-500 text-xs mt-1">{fieldErrors.stock}</p>}
                             </div>
                         </div>
                     </section>
 
-                    {/* Section 04: Taxonomy / Selection */}
+                    {/* Taxonomy */}
                     <section className="space-y-8">
                         <div className="flex items-baseline justify-between border-b border-[#eeeeee] pb-4">
                             <h2 className="text-3xl font-headline font-medium text-[#1a1c1c]">Taxonomy</h2>
@@ -487,16 +560,14 @@ const AddProduct = () => {
                                             name={selectGroup.name}
                                             value={formData[selectGroup.name]}
                                             onChange={handleChange}
-                                            className={`w-full border-b ${fieldErrors[selectGroup.name] ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] bg-transparent focus:outline-none focus:border-black transition-colors appearance-none pr-8 cursor-pointer`}
+                                            className={`w-full border-b ${fieldErrors[selectGroup.name] ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] bg-transparent focus:outline-none focus:border-black appearance-none pr-8 cursor-pointer`}
                                         >
                                             <option value="">Select {selectGroup.label}</option>
-
                                             {selectGroup.options.map((opt) => (
                                                 <option key={opt.value} value={opt.value}>
                                                     {opt.label}
                                                 </option>
                                             ))}
-
                                             {selectGroup.actionValue && (
                                                 <>
                                                     <option disabled>──────────</option>
@@ -506,9 +577,7 @@ const AddProduct = () => {
                                                 </>
                                             )}
                                         </select>
-                                        <span className="material-symbols-outlined absolute right-0 bottom-2 text-[#777777] rotate-180 group-focus-within:rotate-0 linear duration-300">
-                                            <MdExpandMore />
-                                        </span>
+                                        <MdExpandMore className="absolute right-0 bottom-2 text-[#777777] text-xl pointer-events-none" />
                                     </div>
                                     {fieldErrors[selectGroup.name] && <p className="text-red-500 text-xs mt-1">{fieldErrors[selectGroup.name]}</p>}
                                 </div>
@@ -516,7 +585,7 @@ const AddProduct = () => {
                         </div>
                     </section>
 
-                    {/* Section 05: Attributes & Status */}
+                    {/* Attributes & Status */}
                     <section className="space-y-8">
                         <div className="flex items-baseline justify-between border-b border-[#eeeeee] pb-4">
                             <h2 className="text-3xl font-headline font-medium text-[#1a1c1c]">Attributes &amp; Status</h2>
@@ -527,7 +596,7 @@ const AddProduct = () => {
                             <div className="space-y-2">
                                 <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Colors</label>
                                 <input name="colors" value={formData.colors} onChange={handleChange}
-                                    className={`w-full border-b ${fieldErrors.colors ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] placeholder-[#b5b5b5] focus:outline-none focus:border-black transition-colors bg-transparent`}
+                                    className={`w-full border-b ${fieldErrors.colors ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] focus:outline-none focus:border-black bg-transparent`}
                                     placeholder="e.g. Noir, Blanc" type="text" />
                                 {fieldErrors.colors && <p className="text-red-500 text-xs mt-1">{fieldErrors.colors}</p>}
                             </div>
@@ -535,20 +604,18 @@ const AddProduct = () => {
                             <div className="space-y-2">
                                 <label className="block font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Sizes</label>
                                 <input name="sizes" value={formData.sizes} onChange={handleChange}
-                                    className={`w-full border-b ${fieldErrors.sizes ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] placeholder-[#b5b5b5] focus:outline-none focus:border-black transition-colors bg-transparent`}
+                                    className={`w-full border-b ${fieldErrors.sizes ? 'border-red-500' : 'border-[#dddddd]'} pb-2 font-body text-base text-[#1a1c1c] focus:outline-none focus:border-black bg-transparent`}
                                     placeholder="e.g. S, M, L, XL" type="text" />
                                 {fieldErrors.sizes && <p className="text-red-500 text-xs mt-1">{fieldErrors.sizes}</p>}
                             </div>
 
-                            {/* Visibility Toggle Switch */}
                             <div className="md:col-span-2 flex items-center justify-between bg-[#fdfdfd] border border-[#eeeeee] p-4 mt-4">
                                 <div className="space-y-1">
                                     <p className="font-label text-[10px] uppercase tracking-widest font-bold text-[#777777]">Published Status</p>
                                     <p className="font-body text-sm text-[#474747]">Make this product visible in the store</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer select-none">
-                                    <input name="isPublished" type="checkbox" checked={formData.isPublished} onChange={handleChange}
-                                        className="sr-only peer" />
+                                    <input name="isPublished" type="checkbox" checked={formData.isPublished} onChange={handleChange} className="sr-only peer" />
                                     <div className="w-11 h-6 bg-[#dddddd] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
                                 </label>
                             </div>
@@ -557,15 +624,32 @@ const AddProduct = () => {
                 </form>
             </main>
 
-            {/* Fixed Bottom Action Bar */}
-            <nav className="fixed bottom-0 left-0 w-full h-17 flex justify-around items-stretch bg-white z-50 border-t border-[#eeeeee]">
-                <button type="button" onClick={() => navigate("/admin/catalog")} className="flex flex-col items-center justify-center cursor-pointer text-[#777777] w-full h-full hover:bg-[#f9f9f9] transition-all active:scale-95 duration-150">
-                    <span className="material-symbols-outlined mb-1 text-xl font-black"><RxCross2 /></span>
+            {/* Bottom Bar */}
+            <nav className="fixed bottom-0 left-0 w-full h-16 flex justify-around items-stretch bg-white z-50 border-t border-[#eeeeee]">
+                <button
+                    type="button"
+                    onClick={() => navigate("/admin/catalog")}
+                    className="flex flex-col items-center justify-center cursor-pointer text-[#777777] w-1/2 h-full hover:bg-[#f9f9f9] transition-all active:scale-95 duration-150 border-r border-[#eeeeee]"
+                >
+                    <RxCross2 className="text-lg mb-1" />
                     <span className="font-label text-[10px] uppercase tracking-[0.2em] font-bold">Discard</span>
                 </button>
-                <button form="product-form" type="submit" disabled={loading} className="flex flex-col items-center justify-center cursor-pointer text-[#e5e2e1] bg-black w-full h-full hover:bg-[#1a1c1c] transition-all active:scale-95 duration-150">
-                    <span className="material-symbols-outlined mb-1"><FaCheck /></span>
-                    <span className="font-label text-[10px] uppercase tracking-[0.2em] font-bold">{loading ? "Saving..." : "Save Product"}</span>
+                <button
+                    form="product-form"
+                    type="submit"
+                    disabled={loading}
+                    className="flex flex-col items-center justify-center cursor-pointer text-white bg-black w-1/2 h-full hover:bg-[#2a2a2a] disabled:bg-gray-400 transition-all active:scale-95 duration-150"
+                >
+                    {loading ? (
+                        <FaSpinner className="animate-spin text-lg" />
+                    ) : (
+                        <>
+                            <FaCheck className="text-lg mb-1" />
+                            <span className="font-label text-[10px] uppercase tracking-[0.2em] font-bold">
+                                {isEditMode ? "Update Product" : "Save Product"}
+                            </span>
+                        </>
+                    )}
                 </button>
             </nav>
         </div>

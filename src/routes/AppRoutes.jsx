@@ -77,9 +77,12 @@ export default function App() {
                     <Route path="*" element={<AdminNotFound />} />
                 </Route>
 
-                <Route path="/admin/addProduct" element={<AddProduct />} />
-                <Route path="/admin/addCategory" element={<AddCategory />} />
-                <Route path="/admin/addCollection" element={<AddCollection />} />
+                <Route path="/admin/products/add" element={<AddProduct />} />
+                <Route path="/admin/products/edit/:id" element={<AddProduct />} />
+                <Route path="/admin/Categories/add" element={<AddCategory />} />
+                <Route path="/admin/Categories/edit/:id" element={<AddCategory />} />
+                <Route path="/admin/Collections/add" element={<AddCollection />} />
+                <Route path="/admin/Collections/edit/:id" element={<AddCollection />} />
             </Routes>
         </BrowserRouter>
     );
