@@ -18,13 +18,14 @@ const AdminCatalog = () => {
     const [activeStatus, setActiveStatus] = useState("All");
     const [sortBy, setSortBy] = useState("Newest");
 
+
     const [openDropdown, setOpenDropdown] = useState(null);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState( false);
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    
     // Pagination state     
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -112,6 +113,8 @@ const AdminCatalog = () => {
         const found = categoriesList.find((c) => c._id === selectedCategory);
         return found ? found.name : "Category";
     };
+
+    
 
     return (
         <main className="md:ml-72 min-h-screen bg-[#F7F7F5] pt-10 md:pt-0">

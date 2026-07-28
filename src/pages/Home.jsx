@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 import { MdOutlineLocalShipping } from "react-icons/md";
 import { MdOutlineRefresh } from "react-icons/md";
@@ -6,19 +7,35 @@ import { PiPackageBold } from "react-icons/pi";
 import { RiVerifiedBadgeLine } from "react-icons/ri";
 
 import ProductGrid from '../components/product/ProductGrid';
+import { getAllProducts } from '../hooks/useProduct';
 
 const Home = () => {
 
-    const allProducts = [
-        { id: "p1", title: "Sculptural Linen Vest", description: "Regular fit | Womens", price: 195, originalPrice: null, image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1", badge: "NEW", gender: "women", category: "tops", color: "white" },
-        { id: "p10", title: "Relaxed Fit Hoodie", description: "Relaxed fit | Mens", price: 140, originalPrice: null, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7", badge: "", gender: "men", category: "tops", color: "gray" },
-        { id: "p3", title: "Striped Summer Shorts", description: "Easy fit | Junior", price: 25, originalPrice: null, image: "https://images.unsplash.com/photo-1554342321-0776d282ceac?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2lkfGVufDB8fDB8fHww", badge: "", gender: "junior", category: "bottoms", color: "blue" },
-        { id: "p4", title: "Fine Knit Cashmere Tee", description: "Premium fit | Mens", price: 350, originalPrice: null, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633", badge: "", gender: "men", category: "tops", color: "gray" }
-    ]
+    const [bestproducts, setBestProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const response = await getAllProducts();
+                setBestProducts(response?.result?.products || []);
+            } catch (err) {
+                setError(err.message || "Failed to load products");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchProducts();
+    }, [])
+
 
     const categoryTiles = [
         { name: "Mens", link: "/collections/men" },
-        { name: "Womens", link: "/collections/women" },
+        { name: "Females", link: "/collections/female" },
         { name: "Junior", link: "/collections/junior" },
     ];
 
@@ -65,7 +82,7 @@ const Home = () => {
                                     src={
                                         cat.name === "Mens"
                                             ? "https://images.unsplash.com/photo-1505022610485-0249ba5b3675"
-                                            : cat.name === "Womens"
+                                            : cat.name === "Females"
                                                 ? "https://plus.unsplash.com/premium_photo-1689371952452-c88c72464115?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8d29tZW4lMjBmYXNoaW9ufGVufDB8fDB8fHww"
                                                 : "https://plus.unsplash.com/premium_photo-1681842331029-2e262fb2aa22?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8Y2hpbGR8ZW58MHx8MHx8fDA%3D"
                                     }
@@ -117,7 +134,7 @@ const Home = () => {
                     </div>
 
                     <div className="">
-                        <ProductGrid products={allProducts} />
+                        <ProductGrid products={bestproducts.slice(0, 4)} />
                     </div>
                 </div>
             </section>

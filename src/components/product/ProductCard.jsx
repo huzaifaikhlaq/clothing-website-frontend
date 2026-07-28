@@ -12,7 +12,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const isAdminRoute = location.pathname.toLowerCase().includes("admin")
+    const productId = product?._id || product?.id;
+    const isAdminRoute = location.pathname.toLowerCase().includes("admin");
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -20,6 +21,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                 setShowMenu(false);
             }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
@@ -35,25 +37,34 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         e.stopPropagation();
         setShowMenu(false);
 
-        navigate(`/admin/products/edit/${product._id || product.id}`);
+        if (onEdit) {
+            onEdit(product);
+        } else if (productId) {
+            navigate(`/admin/products/edit/${productId}`);
+        }
     };
 
     const handleDelete = (e) => {
         e.preventDefault();
         e.stopPropagation();
         setShowMenu(false);
-        if (onDelete) onDelete(product);
+
+        if (onDelete) {
+            onDelete(product);
+        }
     };
 
-    const isSale = product.salePrice > 0 && product.badge === "sale";
+    const isSale = Boolean(product?.salePrice > 0 && product?.badge === "sale");
+
+    if (!product) return null;
 
     return (
         <div className="relative group flex flex-col">
             {/* Product Link wrapper */}
-            <Link to={`/product/${product._id || product.id}`} className="flex flex-col">
+            <Link to={`/product/${productId}`} className="flex flex-col">
                 <ProductImage
                     src={product.images?.[0]}
-                    alt={`Image of ${product.title}`}
+                    alt={`Image of ${product.title || "product"}`}
                     badge={product.badge}
                 />
 
@@ -66,10 +77,11 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                 />
             </Link>
 
-            {/* Admin Action Menu - Checks if URL includes "admin" */}
+            {/* Admin Action Menu */}
             {isAdminRoute && (
                 <div ref={menuRef} className="absolute top-3 right-3 z-20">
                     <button
+                        type="button"
                         onClick={handleMenuToggle}
                         className="p-2 bg-white/90 hover:bg-white text-black rounded-full shadow-md backdrop-blur-sm transition-all focus:outline-none"
                         aria-label="Product options"
@@ -81,12 +93,14 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                     {showMenu && (
                         <div className="absolute right-0 mt-2 w-36 bg-white border border-[#eeeeee] shadow-xl z-30 py-1 flex flex-col">
                             <button
+                                type="button"
                                 onClick={handleEdit}
                                 className="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-[#1a1c1c] hover:bg-[#f7f7f5] flex items-center gap-2 transition-colors"
                             >
                                 <MdEdit size={16} /> Edit
                             </button>
                             <button
+                                type="button"
                                 onClick={handleDelete}
                                 className="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
                             >
