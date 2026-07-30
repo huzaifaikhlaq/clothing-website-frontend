@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react';
 import { TbShoppingBag, TbSearch, TbUser, TbX } from "react-icons/tb";
 import { Link } from 'react-router-dom';
+import { useSelector } from "react-redux";
 
 export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
+
+    const cartCount = useSelector((state) =>
+        state.cart.items.reduce(
+            (total, item) => total + item.quantity,
+            0
+        )
+    );
 
     useEffect(() => {
 
@@ -63,7 +71,7 @@ export default function Header() {
                         <Link to="/cart" className="relative text-zinc-900 dark:text-zinc-100 hover:opacity-60">
                             <TbShoppingBag className="text-xl md:text-2xl" />
                             <span className="absolute -top-1 -right-1 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-black text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
-                                0
+                                {cartCount}
                             </span>
                         </Link>
                     </div>

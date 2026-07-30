@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom"; // Assuming React Router
+import { useParams, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { MdOutlineExpandMore } from "react-icons/md";
 import ProductGrid from "../components/product/ProductGrid";
-import { getProductById, getAllProducts } from "../hooks/useProduct";
+import { getProductById, getAllProducts } from "../hooks/useProduct.js";
+import { addCartItem } from "../features/cart/cartTrunks.js";
 
 const ProductDetail = () => {
-    // 1. Fetch dynamic route parameters
     const { id } = useParams();
+    const dispatch = useDispatch();
 
     // Data State
     const [product, setProduct] = useState(null);
@@ -19,7 +21,9 @@ const ProductDetail = () => {
     const [selectedColor, setSelectedColor] = useState("");
     const [selectedSize, setSelectedSize] = useState("");
     const [quantity, setQuantity] = useState(1);
-    const [activeAccordion, setActiveAccordion] = useState("details"); // 'details', 'size', 'shipping' or null
+    const [activeAccordion, setActiveAccordion] = useState("details");
+    const [validationError, setValidationError] = useState("");
+    const [isAdding, setIsAdding] = useState(false);
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -27,27 +31,24 @@ const ProductDetail = () => {
             setError(null);
 
             try {
-                // Fetch single product data (adjust function according to your API wrapper)
                 const response = await getProductById(id);
                 const currentProduct = response?.result?.product || response?.product || response;
 
                 setProduct(currentProduct);
 
-                // Set initial selections based on backend schema
                 if (currentProduct?.images?.length > 0) {
                     setSelectedImage(currentProduct.images[0]);
                 }
                 if (currentProduct?.colors?.length > 0) {
                     setSelectedColor(currentProduct.colors[0]);
                 }
+                if (currentProduct?.sizes?.length > 0) {
+                    setSelectedSize(currentProduct.sizes[0]);
+                }
 
-
-                // Fetch related products for the "You May Also Like" section
                 const allProductsRes = await getAllProducts();
                 const allProducts = allProductsRes?.result?.products || [];
-                // Filter out current product
-                setRelatedProducts(allProducts.filter(p => p._id !== id));
-
+                setRelatedProducts(allProducts.filter((p) => p._id !== id));
             } catch (err) {
                 setError(err.message || "Failed to load product details.");
             } finally {
@@ -67,6 +68,41 @@ const ProductDetail = () => {
 
     const toggleAccordion = (section) => {
         setActiveAccordion(activeAccordion === section ? null : section);
+    };
+
+    const handleAddToCart = async () => {
+        setValidationError("");
+
+        if (product?.sizes?.length > 0 && !selectedSize) {
+            setValidationError("Please select a size.");
+            return;
+        }
+
+        if (product?.colors?.length > 0 && !selectedColor) {
+            setValidationError("Please select a color.");
+            return;
+        }
+
+        setIsAdding(true);;
+
+        try {
+            const resultAction = await dispatch(
+                addCartItem({
+                    product: product._id,
+                    size: selectedSize,
+                    color: selectedColor,
+                    quantity,
+                })
+            );
+
+            if (addCartItem.rejected.match(resultAction)) {
+                setValidationError(resultAction.payload || "Failed to add item to cart.");
+            }
+        } catch (err) {
+            setValidationError(err.message || "An unexpected error occurred in the ProductDetail page.");
+        } finally {
+            setIsAdding(false);
+        }
     };
 
     if (loading) {
@@ -113,7 +149,6 @@ const ProductDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-16">
                 {/* Dynamic Image Gallery */}
                 <div className="md:col-span-7 flex flex-col gap-4">
-                    {/* Main Active Image */}
                     <div className="aspect-3-4 bg-surface-container overflow-hidden group">
                         <img
                             alt={product.title}
@@ -122,17 +157,22 @@ const ProductDetail = () => {
                         />
                     </div>
 
-                    {/* Thumbnail Selector List */}
                     {product.images?.length > 1 && (
                         <div className="flex gap-3 overflow-x-auto pb-2">
                             {product.images.map((img, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setSelectedImage(img)}
-                                    className={`w-20 h-24 flex-shrink-0 bg-surface-container overflow-hidden border-2 transition-all ${selectedImage === img ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"
+                                    className={`w-20 h-24 flex-shrink-0 bg-surface-container overflow-hidden border-2 transition-all ${selectedImage === img
+                                        ? "border-primary"
+                                        : "border-transparent opacity-70 hover:opacity-100"
                                         }`}
                                 >
-                                    <img src={img} alt={`${product.title} thumbnail ${idx}`} className="w-full h-full object-cover" />
+                                    <img
+                                        src={img}
+                                        alt={`${product.title} thumbnail ${idx}`}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </button>
                             ))}
                         </div>
@@ -147,22 +187,24 @@ const ProductDetail = () => {
                                 {product.badge}
                             </span>
                         )}
-                        <h1 className="font-headline text-3xl md:text-4xl text-on-background mb-2">{product.title}</h1>
+                        <h1 className="font-headline text-3xl md:text-4xl text-on-background mb-2">
+                            {product.title}
+                        </h1>
                         <p className="font-body text-xs text-outline mb-3">{product.subtitle}</p>
 
-                        {/* Dynamic Pricing */}
                         <div className="flex items-center gap-3 font-body text-lg font-bold">
                             {product.salePrice ? (
                                 <>
                                     <span className="text-primary">
-                                        PKR {product.salePrice.toLocaleString("en-PK", {
+                                        PKR{" "}
+                                        {product.salePrice.toLocaleString("en-PK", {
                                             minimumFractionDigits: 2,
                                             maximumFractionDigits: 2,
                                         })}
                                     </span>
-
                                     <span className="line-through text-outline text-sm font-normal">
-                                        PKR {product.price.toLocaleString("en-PK", {
+                                        PKR{" "}
+                                        {product.price.toLocaleString("en-PK", {
                                             minimumFractionDigits: 2,
                                             maximumFractionDigits: 2,
                                         })}
@@ -170,7 +212,8 @@ const ProductDetail = () => {
                                 </>
                             ) : (
                                 <span className="text-primary">
-                                    PKR {product.price?.toLocaleString("en-PK", {
+                                    PKR{" "}
+                                    {product.price?.toLocaleString("en-PK", {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2,
                                     })}
@@ -183,7 +226,7 @@ const ProductDetail = () => {
                         {product.description}
                     </p>
 
-                    {/* Dynamic Color Selector */}
+                    {/* Color Selector */}
                     {product.colors?.length > 0 && (
                         <div>
                             <span className="font-body text-[10px] tracking-widest uppercase mb-4 block">
@@ -191,25 +234,24 @@ const ProductDetail = () => {
                             </span>
                             <div className="flex gap-4">
                                 {product.colors.map((color) => (
-                                    <button
-                                        key={color}
-                                        onClick={() => setSelectedColor(color)}
-                                        style={{ backgroundColor: color.toLowerCase() }}
-                                        title={color}
-                                        className={`w-8 h-8 rounded-full border border-gray-300 ring-1 ring-offset-2 transition-all ${selectedColor === color ? "ring-primary scale-110" : "ring-transparent hover:scale-105"
-                                            }`}
+                                    <button key={color} onClick={() => setSelectedColor(color)} style={{ backgroundColor: color.toLowerCase().replace(/\s+/g, '') }} title={color} className={`w-8 h-8 rounded-full border border-gray-300 ring-1 ring-offset-2 transition-all ${selectedColor === color ? "ring-primary scale-110" : "ring-transparent hover:scale-105"}`}
                                     />
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* Dynamic Size Selector */}
+                    {/* Size Selector */}
                     {product.sizes?.length > 0 && (
                         <div>
                             <div className="flex justify-between items-end mb-4">
-                                <span className="font-body text-[10px] tracking-widest uppercase block">Select Size</span>
-                                <a className="font-body text-[10px] tracking-widest uppercase underline underline-offset-4 text-outline hover:text-primary" href="#">
+                                <span className="font-body text-[10px] tracking-widest uppercase block">
+                                    Select Size
+                                </span>
+                                <a
+                                    className="font-body text-[10px] tracking-widest uppercase underline underline-offset-4 text-outline hover:text-primary"
+                                    href="#"
+                                >
                                     Size Guide
                                 </a>
                             </div>
@@ -217,7 +259,10 @@ const ProductDetail = () => {
                                 {product.sizes.map((size) => (
                                     <button
                                         key={size}
-                                        onClick={() => setSelectedSize(size)}
+                                        onClick={() => {
+                                            setSelectedSize(size);
+                                            setValidationError("");
+                                        }}
                                         className={`py-3 font-body text-xs transition-colors ${selectedSize === size
                                             ? "bg-primary text-on-primary font-bold"
                                             : "border border-outline-variant hover:border-primary"
@@ -230,7 +275,7 @@ const ProductDetail = () => {
                         </div>
                     )}
 
-                    {/* Stock Status & Quantity Actions */}
+                    {/* Stock & Quantity Actions */}
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center border border-outline-variant w-fit">
@@ -251,46 +296,72 @@ const ProductDetail = () => {
                                 </button>
                             </div>
                             <span className="font-body text-xs text-outline">
-                                {product.stock > 0 ? `${product.stock} items available` : "Out of Stock"}
+                                {product.stock > 0
+                                    ? `${product.stock} items available`
+                                    : "Out of Stock"}
                             </span>
                         </div>
 
+                        {validationError && (
+                            <p className="text-xs font-body text-red-500">{validationError}</p>
+                        )}
+
                         <button
-                            disabled={product.stock <= 0}
-                            className="w-full bg-primary text-on-primary py-5 font-body text-sm uppercase tracking-[0.2em] transition-all duration-150 hover:bg-primary/90 active:scale-95 active:opacity-70  disabled:bg-gray-400 disabled:cursor-not-allowed  disabled:hover:bg-gray-400 border"
+                            onClick={handleAddToCart}
+                            disabled={product.stock <= 0 || isAdding}
+                            className="w-full bg-primary text-on-primary py-5 font-body text-sm uppercase tracking-[0.2em] transition-all duration-150 hover:bg-primary/90 active:scale-95 active:opacity-70 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400 border"
                         >
-                            {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                            {isAdding
+                                ? "Adding..."
+                                : product.stock > 0
+                                    ? "Add to Cart"
+                                    : "Out of Stock"}
                         </button>
                     </div>
 
-                    {/* Functional Accordions */}
-                    <div className=" border-t border-outline-variant">
-                        {/* Product Details Section */}
+                    {/* Accordions */}
+                    <div className="border-t border-outline-variant">
                         <div className="border-b border-outline-variant">
                             <button
                                 onClick={() => toggleAccordion("details")}
                                 className="w-full py-5 flex justify-between items-center text-left"
                             >
-                                <span className="font-body text-[10px] tracking-widest uppercase font-bold">Product Details</span>
-                                <MdOutlineExpandMore className={`text-lg transition-transform duration-300 ${activeAccordion === "details" ? "rotate-180" : ""}`} />
+                                <span className="font-body text-[10px] tracking-widest uppercase font-bold">
+                                    Product Details
+                                </span>
+                                <MdOutlineExpandMore
+                                    className={`text-lg transition-transform duration-300 ${activeAccordion === "details" ? "rotate-180" : ""
+                                        }`}
+                                />
                             </button>
                             {activeAccordion === "details" && (
                                 <div className="pb-5 text-sm text-on-surface-variant font-body leading-relaxed">
-                                    <p>SKU: <span className="font-semibold">{product.sku}</span></p>
-                                    <p>Category: <span className="font-semibold">{product.category?.name || "General"}</span></p>
+                                    <p>
+                                        SKU: <span className="font-semibold">{product.sku}</span>
+                                    </p>
+                                    <p>
+                                        Category:{" "}
+                                        <span className="font-semibold">
+                                            {product.category?.name || "General"}
+                                        </span>
+                                    </p>
                                     <p className="mt-2">{product.description}</p>
                                 </div>
                             )}
                         </div>
 
-                        {/* Size & Fit Section */}
                         <div className="border-b border-outline-variant">
                             <button
                                 onClick={() => toggleAccordion("size")}
                                 className="w-full py-5 flex justify-between items-center text-left"
                             >
-                                <span className="font-body text-[10px] tracking-widest uppercase font-bold">Size & Fit</span>
-                                <MdOutlineExpandMore className={`text-lg transition-transform duration-300 ${activeAccordion === "size" ? "rotate-180" : ""}`} />
+                                <span className="font-body text-[10px] tracking-widest uppercase font-bold">
+                                    Size & Fit
+                                </span>
+                                <MdOutlineExpandMore
+                                    className={`text-lg transition-transform duration-300 ${activeAccordion === "size" ? "rotate-180" : ""
+                                        }`}
+                                />
                             </button>
                             {activeAccordion === "size" && (
                                 <div className="pb-5 text-sm text-on-surface-variant font-body leading-relaxed">
@@ -299,18 +370,23 @@ const ProductDetail = () => {
                             )}
                         </div>
 
-                        {/* Shipping & Returns */}
                         <div className="border-b border-outline-variant">
                             <button
                                 onClick={() => toggleAccordion("shipping")}
                                 className="w-full py-5 flex justify-between items-center text-left"
                             >
-                                <span className="font-body text-[10px] tracking-widest uppercase font-bold">Shipping & Returns</span>
-                                <MdOutlineExpandMore className={`text-lg transition-transform duration-300 ${activeAccordion === "shipping" ? "rotate-180" : ""}`} />
+                                <span className="font-body text-[10px] tracking-widest uppercase font-bold">
+                                    Shipping & Returns
+                                </span>
+                                <MdOutlineExpandMore
+                                    className={`text-lg transition-transform duration-300 ${activeAccordion === "shipping" ? "rotate-180" : ""
+                                        }`}
+                                />
                             </button>
                             {activeAccordion === "shipping" && (
                                 <div className="pb-5 text-sm text-on-surface-variant font-body leading-relaxed">
-                                    Free standard shipping on orders over $150. Returns accepted within 30 days.
+                                    Free standard shipping on orders over $150. Returns accepted within
+                                    30 days.
                                 </div>
                             )}
                         </div>
@@ -318,7 +394,7 @@ const ProductDetail = () => {
                 </div>
             </div>
 
-            {/* Dynamic "You May Also Like" Grid */}
+            {/* Related Products */}
             {relatedProducts.length > 0 && (
                 <section className="mt-24">
                     <h2 className="font-headline text-lg md:text-xl lg:text-2xl italic tracking-tight mb-8">
