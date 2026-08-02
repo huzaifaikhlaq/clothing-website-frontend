@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+// import { useState } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { IoMdMenu, IoMdNotificationsOutline, IoMdSearch } from "react-icons/io";
 import { TbShoppingBag } from "react-icons/tb";
 
 const AdminNavbar = ({ setSidebarOpen }) => {
-    const [searchQuery, setSearchQuery] = useState("");
+    // const [searchQuery, setSearchQuery] = useState("");
     const location = useLocation();
 
     const getPageName = () => {
         const path = location.pathname;
-        if (path === "/admin") return "Overview";
+        if (path.includes("/overview")) return "Overview";
         if (path.includes("/catalog")) return "Catalog";
         if (path.includes("/sales")) return "Sales";
         if (path.includes("/content")) return "Content";
@@ -35,7 +35,7 @@ const AdminNavbar = ({ setSidebarOpen }) => {
             </div>
 
             {/* Right side remains same... */}
-            <div className="flex items-center space-x-4">
+            {/* <div className="flex items-center space-x-4">
                 <div className="hidden lg:flex items-center bg-[#f3f3f3] px-3 py-1.5 gap-2 border border-transparent focus-within:border-black transition-all">
                     <IoMdSearch className="text-[#777777]" size={18} />
                     <input
@@ -47,8 +47,8 @@ const AdminNavbar = ({ setSidebarOpen }) => {
                     />
                 </div>
                 <IoMdNotificationsOutline className="text-2xl cursor-pointer hover:scale-110 transition-transform" />
-                <TbShoppingBag className="text-2xl cursor-pointer hover:opacity-60 transition-opacity" />
-            </div>
+                <Link to="/cart"><TbShoppingBag className="text-2xl cursor-pointer hover:opacity-60 transition-opacity" /></Link>
+            </div> */}
         </header>
     );
 };

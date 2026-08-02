@@ -1,5 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchCart } from "../features/cart/cartTrunks.js"
+import { fetchOrdersThunk } from "../features/oders/orderTrunk.js";
+
 // Layouts 
 import Layout from "../components/layout/Layout";
 
@@ -9,7 +14,6 @@ import CategoryPage from "../pages/CategoryPage";
 import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
-import PaymentPage from "../pages/PaymentPage";
 import ReviewOrder from "../pages/ReviewOrder";
 import Auth from "../pages/Auth";
 import Profile from "../pages/Profile";
@@ -34,7 +38,17 @@ import AdminNotFound from "../pages/admin/AdminNotFound";
 import AuthProtected from "../middlewares/authProtected";
 
 
+
 export default function App() {
+
+    const dispatch = useDispatch();
+    const token = sessionStorage.getItem("token");
+
+    useEffect(() => {
+        dispatch(fetchCart());
+        dispatch(fetchOrdersThunk());
+    }, [dispatch, token]);
+
     return (
         <BrowserRouter>
             <Routes>
@@ -55,9 +69,8 @@ export default function App() {
                     {/* auth middleware */}
                     <Route path="/profile" element={<AuthProtected><Profile /></AuthProtected>} />
                     {/* Checkout flow */}
-                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/cart" element={<AuthProtected><Cart /></AuthProtected>} />
                     <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/payment" element={<PaymentPage />} />
                     <Route path="/review" element={<ReviewOrder />} />
 
                     {/* 404 Page  */}

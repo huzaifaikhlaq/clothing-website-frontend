@@ -3,15 +3,18 @@ import { LuLayoutDashboard } from "react-icons/lu";
 import { MdOutlineInventory2, MdOutlinePayments, MdOutlineArticle } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
+import { useAuthContext } from "../../../context/AuthContext.jsx";
 
 const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
     const navItems = [
         { name: 'Overview', path: '/admin/overview', icon: <LuLayoutDashboard /> },
         { name: 'Catalog', path: '/admin/catalog', icon: <MdOutlineInventory2 /> },
         { name: 'Sales', path: '/admin/sales', icon: <MdOutlinePayments /> },
-        { name: 'Content', path: '/admin/content', icon: <MdOutlineArticle /> },
-        { name: 'Settings', path: '/admin/settings', icon: <IoSettingsOutline /> },
+        // { name: 'Content', path: '/admin/content', icon: <MdOutlineArticle /> },
+        // { name: 'Settings', path: '/admin/settings', icon: <IoSettingsOutline /> },
     ];
+
+    const { logout } = useAuthContext();
 
     return (
         <>
@@ -72,8 +75,8 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
                             />
                         </div>
                         <div className="flex-1">
-                            <p className="text-xs font-label uppercase tracking-widest text-white truncate">Director</p>
-                            <p className="text-[10px] text-[#777777] cursor-pointer hover:text-white transition-colors">Sign Out</p>
+                            <p className="text-xs font-label uppercase tracking-widest text-white truncate">Admin</p>
+                            <button onClick={logout} className="text-[10px] text-[#777777] cursor-pointer hover:text-white transition-colors">Logout Out</button>
                         </div>
                     </div>
                 </div>

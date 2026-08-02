@@ -1,6 +1,7 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
+
 import { useSelector, useDispatch } from "react-redux";
+
 import { MdOutlineLock } from "react-icons/md";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { RxLoop } from "react-icons/rx";
@@ -8,24 +9,12 @@ import { IoClose } from "react-icons/io5";
 import { HiPlus } from "react-icons/hi";
 import { FaMinus } from "react-icons/fa6";
 
-import { fetchCart, removeItem, updateCartItem } from "../features/cart/cartTrunks.js";
+import {  removeItem, updateCartItem } from "../features/cart/cartTrunks.js";
 
 const Cart = () => {
     const dispatch = useDispatch();
 
-    const { items: cartItems, loading, mutationLoading, error } = useSelector((state) => state.cart);
-
-    useEffect(() => {
-        dispatch(fetchCart());
-    }, [dispatch]);
-
-    // UPDATE: Access price through item.product
-    const subtotal = cartItems.reduce((total, item) => {
-        const rawPrice = item.product?.price || 0;
-        const itemPrice = typeof rawPrice === 'string' ? parseFloat(rawPrice.replace(/[^0-9.-]+/g, "")) : rawPrice;
-        const itemQty = item.quantity || 1;
-        return total + (itemPrice * itemQty);
-    }, 0);
+    const { items: cartItems, totalAmount, loading, error } = useSelector((state) => state.cart);
 
     const handleRemoveItem = (productId, size, color) => {
         dispatch(
@@ -81,7 +70,7 @@ const Cart = () => {
                                 <div className="flex-1 flex flex-col justify-between py-1">
                                     <div>
                                         <div className="flex justify-between items-start">
-                                            <Link to={`/product/${item.product?._id}`} className="hover:underline  font-label font-bold uppercase text-[12px] tracking-wider text-[#1a1c1c]">
+                                            <Link to={`/product/${item.product?._id}`} className="hover:underline font-label font-bold uppercase text-[12px] tracking-wider text-[#1a1c1c]">
                                                 {item.product?.title}
                                             </Link>
                                             <button
@@ -112,7 +101,8 @@ const Cart = () => {
                                             </button>
                                         </div>
                                         <p className="font-label font-bold text-sm text-[#1a1c1c]">
-                                            PKR {typeof item.product?.price === 'number' ? item.product.price.toFixed(2) : item.product?.price}
+                                            PKR{" "}
+                                            {Number(item.product?.salePrice ?? item.product?.price).toFixed(2)}
                                         </p>
                                     </div>
                                 </div>
@@ -131,7 +121,7 @@ const Cart = () => {
                     <div className="space-y-4 mb-8">
                         <div className="flex justify-between items-center">
                             <span className="font-label text-xs uppercase tracking-widest text-[#777777]">Subtotal</span>
-                            <span className="font-label text-sm text-[#1a1c1c]">PKR {subtotal.toFixed(2)}</span>
+                            <span className="font-label text-sm text-[#1a1c1c]">PKR {Number(totalAmount).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="font-label text-xs uppercase tracking-widest text-[#777777]">Shipping</span>
@@ -139,13 +129,13 @@ const Cart = () => {
                         </div>
                         <div className="flex justify-between items-center pt-4">
                             <span className="font-label text-xs uppercase tracking-[0.3em] font-bold text-[#1a1c1c]">Total</span>
-                            <span className="font-label text-xl font-bold tracking-tight text-[#1a1c1c]">PKR {subtotal.toFixed(2)}</span>
+                            <span className="font-label text-xl font-bold tracking-tight text-[#1a1c1c]">PKR {Number(totalAmount).toFixed(2)}</span>
                         </div>
                     </div>
 
-                    <button className="w-full bg-black text-[#e5e2e1] py-5 font-label uppercase text-[12px] tracking-[0.25em] font-bold mb-4 active:opacity-70 transition-opacity">
+                    <Link to="/checkout" className="block flex justify-center items-baseline-last w-full bg-black text-[#e5e2e1] py-5 font-label uppercase text-[12px] tracking-[0.25em] font-bold mb-4 active:opacity-70 transition-opacity">
                         Proceed to Checkout
-                    </button>
+                    </Link>
 
                     <div className="flex justify-center gap-12 pt-12">
                         {[

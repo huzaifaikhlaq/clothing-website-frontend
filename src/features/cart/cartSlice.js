@@ -3,6 +3,7 @@ import { fetchCart, addCartItem, clearCartItems, removeItem, updateCartItem } fr
 
 const initialState = {
     items: [],
+    totalAmount: 0,
     loading: false,
     mutationLoading: false,
     error: null,
@@ -11,7 +12,11 @@ const initialState = {
 const cartSlice = createSlice({
     name: "cart",
     initialState,
-    reducers: {},
+    reducers: {
+        clearCartLocally: (state) => {
+            state.items = [];
+        }
+    },
     extraReducers: (builder) => {
         builder
             // --- Fetch Cart ---
@@ -22,6 +27,7 @@ const cartSlice = createSlice({
             .addCase(fetchCart.fulfilled, (state, action) => {
                 state.loading = false;
                 state.items = action.payload?.cart?.items || [];
+                state.totalAmount = action.payload?.cart?.totalAmount || 0;
             })
             .addCase(fetchCart.rejected, (state, action) => {
                 state.loading = false;
@@ -36,6 +42,8 @@ const cartSlice = createSlice({
             .addCase(addCartItem.fulfilled, (state, action) => {
                 state.loading = false;
                 state.items = action.payload?.cart?.items || [];
+                state.totalAmount = action.payload?.cart?.totalAmount || 0;
+
             })
             .addCase(addCartItem.rejected, (state, action) => {
                 state.loading = false;
@@ -48,11 +56,13 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(updateCartItem.fulfilled, (state, action) => {
-                state.loading = false;
+                state.mutationLoading = false;
                 state.items = action.payload?.cart?.items || [];
+                state.totalAmount = action.payload?.cart?.totalAmount || 0;
+
             })
             .addCase(updateCartItem.rejected, (state, action) => {
-                state.loading = false;
+                state.mutationLoading = false;
                 state.error = action.error.message;
             })
 
@@ -64,6 +74,8 @@ const cartSlice = createSlice({
             .addCase(removeItem.fulfilled, (state, action) => {
                 state.loading = false;
                 state.items = action.payload?.cart?.items || [];
+                state.totalAmount = action.payload?.cart?.totalAmount || 0;
+
             })
             .addCase(removeItem.rejected, (state, action) => {
                 state.loading = false;
@@ -75,9 +87,11 @@ const cartSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(clearCartItems.fulfilled, (state, action) => {
+            .addCase(clearCartItems.fulfilled, (state) => {
                 state.loading = false;
-                state.items = action.payload?.cart?.items || [];
+                state.items = [];
+                state.totalAmount = 0;
+
             })
             .addCase(clearCartItems.rejected, (state, action) => {
                 state.loading = false;
@@ -86,4 +100,5 @@ const cartSlice = createSlice({
     },
 });
 
+export const { clearCartLocally } = cartSlice.actions;
 export default cartSlice.reducer;

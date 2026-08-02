@@ -1,77 +1,61 @@
-import React, { useState } from "react";
-import Wishlist from "./Wishlist";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useAuthContext } from "../context/AuthContext";
 
 const Profile = () => {
-    // Active tab
-    const [activeTab, setActiveTab] = useState("orders");
+    const userData = (() => {
+        try {
+            const storedUser = sessionStorage.getItem("user");
+            return storedUser ? JSON.parse(storedUser) : null;
+        } catch (e) {
+            console.error("Failed to parse user from sessionStorage", e);
+            return null;
+        }
+    })();
 
-    // Active filter
+    const { logout } = useAuthContext();
+
+    const state = useSelector((state) => state);
+    console.log(state);
+
+    const { orders, loading, error } = useSelector((state) => state.order);
+
+
+    // Local UI State
+    const [activeTab, setActiveTab] = useState("orders");
     const [filter, setFilter] = useState("all");
 
-    // Dummy Orders Data
-    const [orders] = useState([
-        {
-            id: "VO-88291",
-            title: "Structured Wool Blazer",
-            status: "delivered",
-            date: "Oct 24, 2023",
-            price: 420,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA5tru4Q1wE056y_ohZILxL-4FOoFkI9PoaXz3TJnWMnbo8j9oCIna4BhGBpLZHHqY9yTc1QjWhuFZlmvonlbA0DCbOCoc4H0Kkd2lhPRtJ3YFjHYHOUIgHSEA0YV7BriYia73EpJ_MEGw9orf8-DVMkL4Juf-lCGG1DRxe16tsKzK93wgk1t7jmmIIyvX0_CPqUQXEh6uSi1sDyO-r4Z7LeljxrhN4kQmPIqdDilO9jcgML0MuYFHh4GDHIDEOGxiSTyJthdXBRdM"
-        },
-        {
-            id: "VO-88104",
-            title: "Wide-Leg Silk Trouser",
-            status: "pending",
-            date: "Oct 12, 2023",
-            price: 295,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBldeq8oQbCguc8UXHfgAHxyWTXuh4bTg-9iDp-yPn3o7U69LSGshJjWEiNXtAj9gKBACNtmg_ZPuoy0DG08pi_GfdfGwYuYRMhM4AHSrwGh1NypOE1305ItouwLgPevMGMfpTB69DChPYNjVWUZ8cnoSFe1XeDTjepE16aVBx9QmQ7600ZVq9X9mi8zgysh7GWjG-VHZgFzNuta2hkNGgLsQuGsqgKnx4cBOwKbICSPY6eYA7hSL3UnygaixHwm8B_WuaFxCnrwlc"
-        }
-    ]);
+    const filteredOrders = filter === "all" ? (orders || []) : (orders || []).filter((order) => order.status?.toLowerCase() === filter.toLowerCase());
 
-    // Filtered Orders
-    const filteredOrders =
-        filter === "all"
-            ? orders
-            : orders.filter((order) => order.status === filter);
-
-    // Add to Cart (frontend only)
     const handleAddToCart = (item) => {
         console.log("Added to cart:", item);
         alert(`${item.title} added to cart`);
     };
 
     return (
-        <main className=" p-4 md:p-8  mx-auto min-h-screen">
+        <main className="p-4 md:p-8 mx-auto min-h-screen">
             {/* Header Section */}
-            <section className="mb-10 md:mb-12">
-                <h1 className="font-headline italic text-3xl sm:text-4xl md:text-6xl text-black mb-3 md:mb-5">
-                    My Account
-                </h1>
-                <p className="font-label text-[10px] uppercase tracking-widest text-[#777777]">
-                    Member since November 2023
-                </p>
+            <section className="mb-10 md:mb-12 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-6">
+                <div>
+                    <h1 className="font-headline italic text-3xl sm:text-4xl md:text-6xl text-black capitalize">
+                        {userData?.name || "My Account"}
+                    </h1>
+                    {userData?.email && (
+                        <p className="text-sm text-gray-500 mt-1">{userData.email}</p>
+                    )}
+                </div>
+
+                {/* Logout Button */}
+                <Link to="/"
+                    onClick={logout}
+                    className="self-start sm:self-auto px-6 py-2.5 bg-black text-white text-xs font-medium uppercase tracking-wider hover:bg-red-600 transition-colors duration-200 focus:outline-none"
+                >
+                    Log Out
+                </Link>
             </section>
 
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-                {/* Sidebar / Mobile Nav */}
-                <aside className="lg:w-64 border-b lg:border-b-0 border-gray-100 pb-6 lg:pb-0">
-                    <nav className="flex lg:flex-col gap-6 overflow-x-auto no-scrollbar whitespace-nowrap lg:whitespace-normal lg:w-70">
-                        {["orders", "wishlist", "addresses", "preferences"].map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`font-label text-[10px] uppercase tracking-widest text-left transition-colors ${activeTab === tab
-                                    ? "text-black font-bold"
-                                    : "text-[#777777] hover:text-black"
-                                    }`}
-                            >
-                                {tab === "orders"
-                                    ? "My Orders"
-                                    : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </button>
-                        ))}
-                    </nav>
-                </aside>
 
                 {/* Content Area */}
                 <div className="flex-grow">
@@ -97,39 +81,82 @@ const Profile = () => {
                                 </div>
                             </div>
 
+                            {/* Render Loading, Error, or Orders using Redux State */}
                             <div className="space-y-4 md:space-y-6">
-                                {filteredOrders.length > 0 ? (
-                                    filteredOrders.map((order) => (
-                                        <div
-                                            key={order.id}
-                                            className="bg-white p-4 md:p-6 border border-gray-200 flex flex-col sm:flex-row gap-4 md:gap-6"
-                                        >
-                                            <div className="w-full sm:w-32 h-48 sm:h-32 flex-shrink-0 bg-gray-50">
-                                                <img
-                                                    src={order.image}
-                                                    className="w-full h-full object-cover"
-                                                    alt={order.title}
-                                                />
-                                            </div>
+                                {loading ? (
+                                    <div className="py-20 text-center border border-dashed">
+                                        <p className="text-gray-400 font-label text-xs uppercase tracking-widest animate-pulse">
+                                            Loading your orders...
+                                        </p>
+                                    </div>
+                                ) : error ? (
+                                    <div className="py-20 text-center border border-red-200 bg-red-50">
+                                        <p className="text-red-500 font-label text-xs uppercase tracking-widest">
+                                            {error}
+                                        </p>
+                                    </div>
+                                ) : filteredOrders.length > 0 ? (
+                                    filteredOrders.map((order) => {
+                                        const itemsArray = order.orderItems || order.items || order.products || [];
 
-                                            <div className="flex flex-col justify-between flex-grow">
-                                                <div>
-                                                    <div className="flex justify-between items-start mb-1">
+                                        return (
+                                            <div
+                                                key={order._id || order.id}
+                                                className="bg-white p-4 md:p-6 border border-gray-200 flex flex-col gap-4"
+                                            >
+                                                {/* Order Header (ID, Date, Status) */}
+                                                <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-gray-100 pb-4 gap-2">
+                                                    <div>
                                                         <p className="text-[10px] uppercase tracking-tighter text-gray-400">
-                                                            Order #{order.id}
+                                                            Order #{order._id || order.id}
                                                         </p>
-                                                        <span className={`text-[9px] uppercase px-2 py-0.5 border ${order.status === 'delivered' ? 'border-green-200 text-green-600' : 'border-orange-200 text-orange-600'
-                                                            }`}>
-                                                            {order.status}
-                                                        </span>
+                                                        <p className="text-sm text-gray-500 mt-1">
+                                                            Placed on: {new Date(order.createdAt || order.date).toLocaleDateString()}
+                                                        </p>
                                                     </div>
-                                                    <h3 className="text-lg md:text-xl font-medium mb-1">{order.title}</h3>
-                                                    <p className="text-sm text-gray-500">{order.date}</p>
+                                                    <span className={`self-start sm:self-auto text-[9px] uppercase px-2 py-0.5 border ${order.status?.toLowerCase() === 'delivered'
+                                                        ? 'border-green-200 text-green-600'
+                                                        : 'border-orange-200 text-orange-600'
+                                                        }`}>
+                                                        {order.status || "Processing"}
+                                                    </span>
                                                 </div>
-                                                <p className="font-bold text-lg mt-2 sm:mt-0">${order.price}</p>
+
+                                                {/* All Order Items List */}
+                                                <div className="flex flex-col gap-4 py-2">
+                                                    {itemsArray.map((item, index) => (
+                                                        <div key={item._id || index} className="flex flex-col sm:flex-row gap-4 items-center">
+                                                            <div className="w-full sm:w-24 h-32 sm:h-24 flex-shrink-0 bg-gray-50">
+                                                                <img
+                                                                    src={item?.product?.images?.[0]}
+                                                                    className="w-full h-full object-cover"
+                                                                    alt={item?.product?.title || "Product Image"}
+                                                                />
+                                                            </div>
+                                                            <div className="flex-grow w-full text-center sm:text-left">
+                                                                <h3 className="text-md md:text-lg font-medium">
+                                                                    {item?.product?.title}
+                                                                </h3>
+                                                                {item?.quantity && (
+                                                                    <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
+                                                                )}
+                                                                <p className="text-sm text-gray-500 mt-1">
+                                                                    Price: <span className="text-xs">PKR</span> {item?.product?.price || item.price}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Order Footer (Total Price) */}
+                                                <div className="flex justify-end items-center border-t border-gray-100 pt-4 mt-2">
+                                                    <p className="font-bold text-lg md:text-xl">
+                                                        Total: <span className="text-sm">PKR</span> {order.totalPrice || order.totalAmount || order.price}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 ) : (
                                     <div className="py-20 text-center border border-dashed">
                                         <p className="text-gray-400 font-label text-xs uppercase tracking-widest">No orders found</p>
