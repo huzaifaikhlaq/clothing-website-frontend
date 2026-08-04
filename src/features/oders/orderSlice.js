@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createOrderThunk, fetchOrderByIdThunk, fetchOrdersThunk } from "./orderTrunk";
+import { createOrderThunk, fetchOrderByIdThunk, fetchOrdersThunk, updateOrderThunk, fetchAllAdminOrdersThunk, deleteOrderThunk } from "./orderTrunk";
 
 const initialState = {
     orders: [],
+    adminOrders: [],
     currentOrder: null,
 
     loading: false,
@@ -67,6 +68,46 @@ const orderSlice = createSlice({
             .addCase(fetchOrdersThunk.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+
+            // Fetch All Admin Orders
+            .addCase(fetchAllAdminOrdersThunk.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchAllAdminOrdersThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                // FIX: Extract 'orders' from the payload object
+                state.adminOrders = action.payload.orders || action.payload.data || [];
+            })
+            .addCase(fetchAllAdminOrdersThunk.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
+            // Update Order
+            .addCase(updateOrderThunk.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.success = false;
+            })
+
+            .addCase(updateOrderThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                state.success = true;
+                state.currentOrder = action.payload.order;
+            })
+
+            .addCase(updateOrderThunk.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
+            // Delete Order
+            .addCase(deleteOrderThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                state.success = true;
+                state.adminOrders = state.adminOrders.filter((order) => order._id !== action.payload.order._id);
             })
 
             // Fetch Single Order

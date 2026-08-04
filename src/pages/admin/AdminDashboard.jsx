@@ -1,72 +1,70 @@
-import { useMemo } from "react";
+import { useMemo , useEffect} from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { LuLayoutDashboard } from "react-icons/lu";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAllAdminOrdersThunk } from "../../features/oders/orderTrunk";
+
 import {
-    MdOutlineInventory2,
     MdOutlinePayments,
-    MdOutlineArticle,
     MdMoreHoriz,
     MdOutlineLocalShipping,
     MdOutlineShoppingCart,
 } from "react-icons/md";
-import { IoSettingsOutline } from "react-icons/io5";
-import {
-    IoMdMenu,
-    IoMdClose,
-    IoMdNotificationsOutline,
-    IoMdSearch,
-    IoMdTrendingUp,
-} from "react-icons/io";
-import { TbShoppingBag } from "react-icons/tb";
+import { IoMdTrendingUp } from "react-icons/io";
 
 const AdminDashboard = () => {
-    const { orders, loading } = useSelector((state) => state.order);
-    const safeOrders = Array.isArray(orders) ? orders : [];
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchAllAdminOrdersThunk());
+    }, [dispatch]);
+
+    const { adminOrders = [], loading } = useSelector((state) => state.order);
+    // console.log(adminOrders);
+    
+
+    const safeOrders = Array.isArray(adminOrders) ? adminOrders : [];
 
     const totalRevenue = safeOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
     const activeOrdersCount = safeOrders.length;
     const avgOrderValue = activeOrdersCount > 0 ? (totalRevenue / activeOrdersCount).toFixed(0) : 0;
 
-    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     const topProducts = useMemo(() => {
         const productMap = {};
         safeOrders.forEach((order) => {
             if (order.items && Array.isArray(order.items)) {
                 order.items.forEach((item) => {
-                    const key = item.product._id
-                    if (!productMap[key]) {
-                        productMap[key] = {
-                            id: key,
-                            name: item.product?.title || "Unknown Product",
-                            price: item.price || 0,
-                            img: item.product?.images[0],
+                    const productId = item.product?._id || item._id;
+                    if (!productId) return;
+
+                    if (!productMap[productId]) {
+                        productMap[productId] = {
+                            id: productId,
+                            name: item.product?.title || item.title || "Unknown Product",
+                            price: item.price || item.product?.price || 0,
+                            img: item.product?.images?.[0] || item.image || "",
                             quantitySold: 0,
                         };
                     }
-                    productMap[key].quantitySold += item.quantity || 1;
+                    productMap[productId].quantitySold += item.quantity || 1;
                 });
             }
         });
 
         return Object.values(productMap)
-            .sort((a, b) => b.quantitySold - a.quantitySold)
+            .sort((a, b) => b.quantitySold - a.quantitySold);
     }, [safeOrders]);
 
-    // 4. Calculate Sales Growth (Last 30 Days)
     const salesChartData = useMemo(() => {
-        // Generate array of the last 30 days
         const last30Days = Array.from({ length: 30 }, (_, i) => {
             const d = new Date();
             d.setDate(d.getDate() - (29 - i));
             return {
                 dateString: d.toISOString().split("T")[0],
                 displayDate: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-                revenue: 0
+                revenue: 0,
             };
         });
 
-        // Map order totals to their respective days
         safeOrders.forEach((order) => {
             if (order.createdAt) {
                 const orderDate = new Date(order.createdAt).toISOString().split("T")[0];
@@ -77,30 +75,26 @@ const AdminDashboard = () => {
             }
         });
 
-        // Find max revenue to calculate percentage heights for the chart bars
         const maxRevenue = Math.max(...last30Days.map((d) => d.revenue));
 
         return last30Days.map((day) => ({
             ...day,
-            // Calculate height percentage (fallback to 0 if maxRevenue is 0)
             heightPercent: maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0,
         }));
     }, [safeOrders]);
 
     return (
         <div className="flex min-h-screen bg-[#F7F7F5] font-sans selection:bg-black selection:text-white">
-            {/* Custom Fonts Injection */}
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
-                @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz@1,6..96&family=Inter:wght@300;400;700&display=swap');
-                .font-headline { font-family: 'Bodoni Moda', serif; }
-                .font-label { font-family: 'Inter', sans-serif; letter-spacing: 0.05em; }
-            `,
+            @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz@1,6..96&family=Inter:wght@300;400;700&display=swap');
+            .font-headline { font-family: 'Bodoni Moda', serif; }
+            .font-label { font-family: 'Inter', sans-serif; letter-spacing: 0.05em; }
+          `,
                 }}
             />
 
-            {/* Main Content Area */}
             <main className="flex-1 md:ml-72 flex flex-col min-w-0">
                 <div className="px-6 md:px-12 max-w-7xl mx-auto space-y-12 w-full pt-10 pb-20">
 
@@ -198,7 +192,6 @@ const AdminDashboard = () => {
                                 {salesChartData.map((day, i) => (
                                     <div
                                         key={i}
-                                        // Ensure a minimum height of 2% just so empty days still show a tiny tick on the axis
                                         style={{ height: `${Math.max(day.heightPercent, 2)}%` }}
                                         className="flex-1 bg-[#f3f3f3] mx-[2px] sm:mx-1 border-t-2 border-black transition-all hover:bg-black group relative cursor-pointer"
                                     >
@@ -220,13 +213,23 @@ const AdminDashboard = () => {
                             <div className="space-y-8 flex-1">
                                 {topProducts.length > 0 ? (
                                     topProducts.map((product) => (
-                                        <Link to={`/product/${product.id}`} key={product.id} className=" block flex items-center space-x-4 group cursor-pointer">
+                                        <Link
+                                            to={`/product/${product.id}`}
+                                            key={product.id}
+                                            className="flex items-center space-x-4 group cursor-pointer"
+                                        >
                                             <div className="w-16 h-20 bg-[#f3f3f3] overflow-hidden shrink-0">
-                                                <img
-                                                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                                                    src={product.img}
-                                                    alt={product.name}
-                                                />
+                                                {product.img ? (
+                                                    <img
+                                                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                                        src={product.img}
+                                                        alt={product.name}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-[9px] text-[#aaa]">
+                                                        No Image
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-[11px] font-label uppercase tracking-widest text-[#1a1c1c] font-bold truncate">
@@ -239,7 +242,7 @@ const AdminDashboard = () => {
                                             <p className="text-xs font-bold text-[#1a1c1c]">
                                                 Rs. {product.price.toLocaleString()}
                                             </p>
-                                        </Link >
+                                        </Link>
                                     ))
                                 ) : (
                                     <div className="h-full flex items-center justify-center text-sm text-[#777777]">
@@ -291,21 +294,27 @@ const AdminDashboard = () => {
                                         </tr>
                                     ) : safeOrders.length > 0 ? (
                                         safeOrders.map((order) => {
-                                            const clientName = order.shippingAddress?.fullName || "Guest User";
+                                            const clientName =
+                                                order.shippingAddress?.fullName ||
+                                                order.user?.name ||
+                                                "Guest User";
+
                                             return (
                                                 <tr
                                                     key={order._id}
                                                     className="group hover:bg-[#f9f9f9] transition-colors"
                                                 >
                                                     <td className="py-6 text-xs font-bold text-[#1a1c1c]">
-                                                        #{order._id.slice(-6).toUpperCase()}
+                                                        #{order._id?.slice(-6).toUpperCase()}
                                                     </td>
                                                     <td className="py-6">
                                                         <div className="flex items-center space-x-3">
-                                                            <div className="w-8 h-8 bg-[#eeeeee] rounded-full overflow-hidden">
+                                                            <div className="w-8 h-8 bg-[#eeeeee] rounded-full overflow-hidden shrink-0">
                                                                 <img
                                                                     className="w-full h-full object-cover grayscale"
-                                                                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${clientName}`}
+                                                                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+                                                                        clientName
+                                                                    )}`}
                                                                     alt={clientName}
                                                                 />
                                                             </div>
@@ -315,11 +324,13 @@ const AdminDashboard = () => {
                                                         </div>
                                                     </td>
                                                     <td className="py-6 text-xs text-[#777777]">
-                                                        {new Date(order.createdAt).toLocaleDateString("en-US", {
-                                                            day: "numeric",
-                                                            month: "short",
-                                                            year: "numeric",
-                                                        })}
+                                                        {order.createdAt
+                                                            ? new Date(order.createdAt).toLocaleDateString("en-US", {
+                                                                day: "numeric",
+                                                                month: "short",
+                                                                year: "numeric",
+                                                            })
+                                                            : "N/A"}
                                                     </td>
                                                     <td className="py-6">
                                                         <span className="text-[9px] uppercase tracking-widest font-bold px-2 py-1 bg-[#f3f3f3] text-[#1a1c1c]">
@@ -327,9 +338,9 @@ const AdminDashboard = () => {
                                                         </span>
                                                     </td>
                                                     <td className="py-6 text-xs font-bold text-[#1a1c1c]">
-                                                        Rs. {order.totalAmount?.toLocaleString()}
+                                                        Rs. {(order.totalAmount || 0).toLocaleString()}
                                                     </td>
-                                                    <td className="py-6 flex justify-end mr-2 ">
+                                                    <td className="py-6 flex justify-end mr-2">
                                                         <span className="text-[#c6c6c6] cursor-pointer hover:text-black transition-colors">
                                                             <MdMoreHoriz size={23} />
                                                         </span>
@@ -348,6 +359,7 @@ const AdminDashboard = () => {
                             </table>
                         </div>
                     </section>
+
                 </div>
             </main>
         </div>

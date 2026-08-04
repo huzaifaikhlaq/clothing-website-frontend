@@ -1,11 +1,12 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { MdOutlineInventory2, MdOutlinePayments, MdOutlineArticle } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
-import { useAuthContext } from "../../../context/AuthContext.jsx";
 
 const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
+    const navigate = useNavigate();
+
     const navItems = [
         { name: 'Overview', path: '/admin/overview', icon: <LuLayoutDashboard /> },
         { name: 'Catalog', path: '/admin/catalog', icon: <MdOutlineInventory2 /> },
@@ -14,7 +15,12 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
         // { name: 'Settings', path: '/admin/settings', icon: <IoSettingsOutline /> },
     ];
 
-    const { logout } = useAuthContext();
+
+    const handleLogout = () => {
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        navigate("/")
+    }
 
     return (
         <>
@@ -76,7 +82,7 @@ const Sidebar = ({ isSidebarOpen, setSidebarOpen }) => {
                         </div>
                         <div className="flex-1">
                             <p className="text-xs font-label uppercase tracking-widest text-white truncate">Admin</p>
-                            <button onClick={logout} className="text-[10px] text-[#777777] cursor-pointer hover:text-white transition-colors">Logout Out</button>
+                            <button onClick={handleLogout} className="text-[10px] text-[#777777] cursor-pointer hover:text-white transition-colors">Logout Out</button>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+
+import { useDispatch } from "react-redux";
+import { fetchAllAdminOrdersThunk } from "../../features/oders/orderTrunk";
+
+
 import { IoMdSearch, IoMdTrendingUp, IoMdArrowBack, IoMdArrowForward, IoMdFunnel, IoMdCheckmark } from "react-icons/io";
 import { MdMoreHoriz } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -10,12 +15,6 @@ const getInitials = (name) => {
     return parts.length > 1
         ? (parts[0][0] + parts[1][0]).toUpperCase()
         : parts[0].substring(0, 2).toUpperCase();
-};
-
-const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 };
 
 // PKR Currency Formatter
@@ -41,7 +40,18 @@ const getStatusColor = (status) => {
 };
 
 const AdminSales = () => {
-    const { orders = [], loading } = useSelector((state) => state.order);
+    const dispatch = useDispatch(); 
+
+    const { adminOrders = [], loading } = useSelector((state) => state.order);
+
+    const formatDate = (date) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString(undefined, options);
+    };
+
+    useEffect(() => {
+        dispatch(fetchAllAdminOrdersThunk());
+    }, [dispatch]);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("All");
@@ -50,9 +60,9 @@ const AdminSales = () => {
     const itemsPerPage = 5;
     const filterRef = useRef(null);
 
-    // Filter and Search Logic
+    // 4. Update your useMemo to filter `adminOrders` instead of `orders`
     const filteredOrders = useMemo(() => {
-        return orders.filter(order => {
+        return adminOrders.filter(order => {
             const clientName = order?.shippingAddress?.fullName || "";
             const orderId = order?._id || "";
             const status = order?.orderStatus || "";
@@ -60,13 +70,13 @@ const AdminSales = () => {
 
             const matchesSearch = clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                city.toLowerCase().includes(searchQuery.toLowerCase()); // Added city to search
+                city.toLowerCase().includes(searchQuery.toLowerCase());
 
             const matchesFilter = filterStatus === "All" || status === filterStatus;
 
             return matchesSearch && matchesFilter;
         });
-    }, [searchQuery, filterStatus, orders]);
+    }, [searchQuery, filterStatus, adminOrders]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);

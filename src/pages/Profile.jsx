@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthContext } from "../context/AuthContext";
+
+import { fetchOrdersThunk } from "../features/oders/orderTrunk.js";
+import { useDispatch } from 'react-redux';
+
 
 const Profile = () => {
     const userData = (() => {
@@ -16,10 +20,15 @@ const Profile = () => {
 
     const { logout } = useAuthContext();
 
-    const state = useSelector((state) => state);
-    console.log(state);
 
     const { orders, loading, error } = useSelector((state) => state.order);
+
+    const dispatch = useDispatch();
+    const token = sessionStorage.getItem("token");
+
+    useEffect(() => {
+        dispatch(fetchOrdersThunk());
+    }, [dispatch, token]);
 
 
     // Local UI State

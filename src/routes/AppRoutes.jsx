@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchCart } from "../features/cart/cartTrunks.js"
-import { fetchOrdersThunk } from "../features/oders/orderTrunk.js";
 
 // Layouts 
 import Layout from "../components/layout/Layout";
@@ -35,7 +34,8 @@ import AddCollection from "../pages/admin/AddCollection";
 import AdminNotFound from "../pages/admin/AdminNotFound";
 
 // Middlewares 
-import AuthProtected from "../middlewares/authProtected";
+import AuthProtected from "../middlewares/AuthProtected.jsx";
+import AdminProtected from "../middlewares/AdminProtected.jsx";
 
 
 
@@ -46,7 +46,6 @@ export default function App() {
 
     useEffect(() => {
         dispatch(fetchCart());
-        dispatch(fetchOrdersThunk());
     }, [dispatch, token]);
 
     return (
@@ -79,12 +78,11 @@ export default function App() {
                 </ Route>
 
                 {/* Admin Layout  */}
-                <Route element={<AdminLayout />}>
+                <Route element={<AdminProtected><AdminLayout /></AdminProtected>}>
+
                     <Route path="/admin/overview" element={<AdminDashboard />} />
                     <Route path="/admin/catalog" element={<AdminCatalog />} />
                     <Route path="/admin/sales" element={<AdminSales />} />
-                    <Route path="/admin/content" element={<AdminContent />} />
-                    <Route path="/admin/settings" element={<AdminSetting />} />
 
                     {/* Admin 404 page */}
                     <Route path="*" element={<AdminNotFound />} />
@@ -97,6 +95,6 @@ export default function App() {
                 <Route path="/admin/Collections/add" element={<AddCollection />} />
                 <Route path="/admin/Collections/edit/:id" element={<AddCollection />} />
             </Routes>
-        </BrowserRouter>
+        </BrowserRouter >
     );
 }
