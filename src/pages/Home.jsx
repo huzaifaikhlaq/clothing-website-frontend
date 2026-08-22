@@ -21,7 +21,7 @@ const Home = () => {
             setError(null);
 
             try {
-                const response = await getAllProducts();
+                const response = await getAllProducts({ page: 1, limit: 4 });
                 setBestProducts(response?.result?.products || []);
             } catch (err) {
                 setError(err.message || "Failed to load products");

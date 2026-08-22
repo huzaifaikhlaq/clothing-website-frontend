@@ -66,6 +66,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                     src={product.images?.[0]}
                     alt={`Image of ${product.title || "product"}`}
                     badge={product.badge}
+                    loading="lazy"
+                    decoding="async"
                 />
 
                 <ProductInfo
