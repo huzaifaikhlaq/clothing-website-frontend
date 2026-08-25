@@ -2,13 +2,21 @@ import { useState, useEffect } from "react";
 import { TbShoppingBag, TbUser } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+
+import { useDispatch } from 'react-redux';
+import { fetchCart } from "../../features/cart/cartTrunks"; 
 
 export default function Header() {
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
 
-    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+    const token = sessionStorage.getItem("token");
+
+    useEffect(() => {
+        dispatch(fetchCart());
+    }, [dispatch, token]);
 
     const cartCount = useSelector((state) =>
         state.cart.items.reduce((total, item) => total + item.quantity, 0)

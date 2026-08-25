@@ -1,4 +1,4 @@
-import { useMemo , useEffect} from "react";
+import { useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAllAdminOrdersThunk } from "../../features/oders/orderTrunk";
@@ -19,8 +19,6 @@ const AdminDashboard = () => {
     }, [dispatch]);
 
     const { adminOrders = [], loading } = useSelector((state) => state.order);
-    // console.log(adminOrders);
-    
 
     const safeOrders = Array.isArray(adminOrders) ? adminOrders : [];
 
@@ -31,15 +29,17 @@ const AdminDashboard = () => {
     const topProducts = useMemo(() => {
         const productMap = {};
         safeOrders.forEach((order) => {
-            if (order.items && Array.isArray(order.items)) {
-                order.items.forEach((item) => {
-                    const productId = item.product?._id || item._id;
+            const orderItems = order.orderItems || order.items || order.products || [];
+
+            if (Array.isArray(orderItems)) {
+                orderItems.forEach((item) => {
+                    const productId = item.product?._id || item.productId || item.product || item._id;
                     if (!productId) return;
 
                     if (!productMap[productId]) {
                         productMap[productId] = {
                             id: productId,
-                            name: item.product?.title || item.title || "Unknown Product",
+                            name: item.product?.title || item.title || item.name || "Unknown Product",
                             price: item.price || item.product?.price || 0,
                             img: item.product?.images?.[0] || item.image || "",
                             quantitySold: 0,
@@ -50,8 +50,7 @@ const AdminDashboard = () => {
             }
         });
 
-        return Object.values(productMap)
-            .sort((a, b) => b.quantitySold - a.quantitySold);
+        return Object.values(productMap).sort((a, b) => b.quantitySold - a.quantitySold);
     }, [safeOrders]);
 
     const salesChartData = useMemo(() => {
@@ -84,7 +83,7 @@ const AdminDashboard = () => {
     }, [safeOrders]);
 
     return (
-        <div className="flex min-h-screen bg-[#F7F7F5] font-sans selection:bg-black selection:text-white">
+        <div className="  flex min-h-screen bg-[#F7F7F5] font-sans selection:bg-black selection:text-white">
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
@@ -96,15 +95,15 @@ const AdminDashboard = () => {
             />
 
             <main className="flex-1 md:ml-72 flex flex-col min-w-0">
-                <div className="px-6 md:px-12 max-w-7xl mx-auto space-y-12 w-full pt-10 pb-20">
+                <div className="px-4 sm:px-6 md:px-10 lg:px-12 max-w-7xl mx-auto space-y-6 sm:space-y-8 md:space-y-12 w-full pt-6 sm:pt-10 pb-12 sm:pb-20">
 
                     {/* Header Section */}
-                    <section className="flex flex-col md:flex-row justify-between items-end gap-y-4 lg:gap-6">
-                        <div className="space-y-2 w-full">
-                            <h2 className="font-headline text-5xl md:text-6xl text-[#1a1c1c]">
+                    <section className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                        <div className="space-y-1 sm:space-y-2 w-full">
+                            <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#1a1c1c] tracking-tight leading-tight">
                                 Performance Summary
                             </h2>
-                            <p className="text-[#777777] font-label text-sm tracking-wide">
+                            <p className="text-[#777777] font-label text-xs sm:text-sm tracking-wide">
                                 Last updated:{" "}
                                 {new Date().toLocaleDateString("en-US", {
                                     month: "short",
@@ -113,58 +112,58 @@ const AdminDashboard = () => {
                                 })}
                             </p>
                         </div>
-                        <button className="whitespace-nowrap py-3 px-8 bg-black text-[#e5e2e1] text-[11px] uppercase tracking-[0.2em] font-label font-bold transition-all hover:bg-[#333] active:scale-95">
+                        <button className="w-full sm:w-auto text-center py-2.5 sm:py-3 px-6 sm:px-8 bg-black text-[#e5e2e1] text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-label font-bold transition-all hover:bg-[#333] active:scale-95">
                             Export Data
                         </button>
                     </section>
 
-                    {/* Stat Cards Row */}
-                    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0.5 bg-[#eeeeee] border border-[#eeeeee]">
+                    {/* Stat Cards Grid */}
+                    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0.5 bg-[#eeeeee] border border-[#eeeeee]">
                         {[
                             {
                                 label: "Total Revenue",
                                 val: `Rs. ${totalRevenue.toLocaleString()}`,
                                 trend: "All time",
-                                icon: <MdOutlinePayments size={24} />,
+                                icon: <MdOutlinePayments size={22} />,
                                 color: "text-green-600",
                             },
                             {
                                 label: "Active Orders",
                                 val: activeOrdersCount.toString(),
                                 trend: "Steady flow",
-                                icon: <MdOutlineLocalShipping size={24} />,
+                                icon: <MdOutlineLocalShipping size={22} />,
                                 color: "text-[#777777]",
                             },
                             {
                                 label: "Avg. Order Value",
                                 val: `Rs. ${Number(avgOrderValue).toLocaleString()}`,
                                 trend: "Overall avg",
-                                icon: <MdOutlineShoppingCart size={24} />,
+                                icon: <MdOutlineShoppingCart size={22} />,
                                 color: "text-green-600",
                             },
                             {
                                 label: "Conversion Rate",
                                 val: "3.8%",
                                 trend: "-0.4% vs LW",
-                                icon: <IoMdTrendingUp size={24} />,
+                                icon: <IoMdTrendingUp size={22} />,
                                 color: "text-red-600",
                             },
                         ].map((stat) => (
                             <div
                                 key={stat.label}
-                                className="bg-white p-8 space-y-4 hover:bg-[#efecec] transition-colors cursor-pointer"
+                                className="bg-white p-5 sm:p-6 lg:p-8 space-y-3 sm:space-y-4 hover:bg-[#efecec] transition-colors cursor-pointer"
                             >
                                 <div className="flex justify-between items-start">
-                                    <span className="text-[10px] font-label uppercase tracking-widest text-[#777777]">
+                                    <span className="text-[9px] sm:text-[10px] font-label uppercase tracking-widest text-[#777777]">
                                         {stat.label}
                                     </span>
                                     <span className="text-[#c6c6c6]">{stat.icon}</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-3xl font-bold text-[#1a1c1c] tracking-tight">
+                                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-[#1a1c1c] tracking-tight">
                                         {stat.val}
                                     </p>
-                                    <p className={`text-[10px] font-label font-bold uppercase tracking-tighter ${stat.color}`}>
+                                    <p className={`text-[9px] sm:text-[10px] font-label font-bold uppercase tracking-tighter ${stat.color}`}>
                                         {stat.trend}
                                     </p>
                                 </div>
@@ -173,10 +172,10 @@ const AdminDashboard = () => {
                     </section>
 
                     {/* Main Data Visuals */}
-                    <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                         {/* Sales Chart */}
-                        <div className="lg:col-span-2 bg-white p-8 space-y-8 border border-[#eeeeee]">
-                            <div className="flex justify-between items-center">
+                        <div className="lg:col-span-2 bg-white p-5 sm:p-6 md:p-8 space-y-6 sm:space-y-8 border border-[#eeeeee]">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                                 <h3 className="text-xs font-label uppercase tracking-widest font-bold text-[#1a1c1c]">
                                     Sales Growth (30D)
                                 </h3>
@@ -188,12 +187,12 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
 
-                            <div className="h-80 w-full relative flex items-end justify-between border-b border-[#eeeeee] pt-4">
+                            <div className="h-64 sm:h-80 w-full relative flex items-end justify-between border-b border-[#eeeeee] pt-4">
                                 {salesChartData.map((day, i) => (
                                     <div
                                         key={i}
                                         style={{ height: `${Math.max(day.heightPercent, 2)}%` }}
-                                        className="flex-1 bg-[#f3f3f3] mx-[2px] sm:mx-1 border-t-2 border-black transition-all hover:bg-black group relative cursor-pointer"
+                                        className="flex-1 bg-[#f3f3f3] mx-[1px] sm:mx-[2px] border-t-2 border-black transition-all hover:bg-black group relative cursor-pointer"
                                     >
                                         <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[9px] px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 text-center rounded pointer-events-none">
                                             <span className="block font-bold">Rs. {day.revenue.toLocaleString()}</span>
@@ -205,20 +204,20 @@ const AdminDashboard = () => {
                         </div>
 
                         {/* Top Acquisitions */}
-                        <div className="bg-white p-8 space-y-8 border border-[#eeeeee] flex flex-col">
+                        <div className="bg-white p-5 sm:p-6 md:p-8 space-y-6 border border-[#eeeeee] flex flex-col justify-between">
                             <h3 className="text-xs font-label uppercase tracking-widest font-bold text-[#1a1c1c]">
                                 Top Acquisitions by quantity
                             </h3>
 
-                            <div className="space-y-8 flex-1">
+                            <div className="space-y-6 flex flex-col max-h-[340px] overflow-y-auto pr-1">
                                 {topProducts.length > 0 ? (
                                     topProducts.map((product) => (
                                         <Link
                                             to={`/product/${product.id}`}
                                             key={product.id}
-                                            className="flex items-center space-x-4 group cursor-pointer"
+                                            className="flex items-center space-x-3 sm:space-x-4 group cursor-pointer"
                                         >
-                                            <div className="w-16 h-20 bg-[#f3f3f3] overflow-hidden shrink-0">
+                                            <div className="w-12 sm:w-16 h-16 sm:h-20 bg-[#f3f3f3] overflow-hidden shrink-0">
                                                 {product.img ? (
                                                     <img
                                                         className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
@@ -232,33 +231,33 @@ const AdminDashboard = () => {
                                                 )}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[11px] font-label uppercase tracking-widest text-[#1a1c1c] font-bold truncate">
+                                                <p className="text-[10px] sm:text-[11px] font-label uppercase tracking-widest text-[#1a1c1c] font-bold truncate">
                                                     {product.name}
                                                 </p>
-                                                <p className="text-[10px] text-[#777777]">
+                                                <p className="text-[9px] sm:text-[10px] text-[#777777]">
                                                     {product.quantitySold} Sold
                                                 </p>
                                             </div>
-                                            <p className="text-xs font-bold text-[#1a1c1c]">
+                                            <p className="text-xs font-bold text-[#1a1c1c] whitespace-nowrap">
                                                 Rs. {product.price.toLocaleString()}
                                             </p>
                                         </Link>
                                     ))
                                 ) : (
-                                    <div className="h-full flex items-center justify-center text-sm text-[#777777]">
+                                    <div className="h-full flex items-center justify-center text-xs text-[#777777] py-10">
                                         No product data available yet.
                                     </div>
                                 )}
                             </div>
 
-                            <button className="w-full py-4 border border-[#eeeeee] text-[10px] uppercase tracking-[0.2em] font-label hover:bg-black hover:text-white transition-all text-[#1a1c1c] mt-auto">
+                            <button className="w-full py-3.5 border border-[#eeeeee] text-[10px] uppercase tracking-[0.2em] font-label hover:bg-black hover:text-white transition-all text-[#1a1c1c] mt-4">
                                 View All Products
                             </button>
                         </div>
                     </section>
 
                     {/* Recent Orders Table */}
-                    <section className="bg-white p-8 space-y-8 border border-[#eeeeee]">
+                    <section className="bg-white p-5 sm:p-6 md:p-8 space-y-6 sm:space-y-8 border border-[#eeeeee]">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <h3 className="text-xs font-label uppercase tracking-widest font-bold text-[#1a1c1c]">
                                 Recent Acquisitions
@@ -273,22 +272,22 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left min-w-[600px]">
+                        <div className="overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
+                            <table className="w-full text-left min-w-[550px] sm:min-w-[600px]">
                                 <thead>
-                                    <tr className="text-[10px] font-label uppercase tracking-widest text-[#777777] border-b border-[#eeeeee]">
-                                        <th className="pb-4 font-normal">Order ID</th>
-                                        <th className="pb-4 font-normal">Client</th>
-                                        <th className="pb-4 font-normal">Date</th>
-                                        <th className="pb-4 font-normal">Status</th>
-                                        <th className="pb-4 font-normal">Amount</th>
-                                        <th className="pb-4 font-normal text-right">Actions</th>
+                                    <tr className="text-[9px] sm:text-[10px] font-label uppercase tracking-widest text-[#777777] border-b border-[#eeeeee]">
+                                        <th className="pb-3 sm:pb-4 font-normal">Order ID</th>
+                                        <th className="pb-3 sm:pb-4 font-normal">Client</th>
+                                        <th className="pb-3 sm:pb-4 font-normal">Date</th>
+                                        <th className="pb-3 sm:pb-4 font-normal">Status</th>
+                                        <th className="pb-3 sm:pb-4 font-normal">Amount</th>
+                                        <th className="pb-3 sm:pb-4 font-normal text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#f9f9f9]">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="6" className="py-8 text-center text-sm text-[#777777]">
+                                            <td colSpan="6" className="py-8 text-center text-xs sm:text-sm text-[#777777]">
                                                 Loading orders...
                                             </td>
                                         </tr>
@@ -304,12 +303,12 @@ const AdminDashboard = () => {
                                                     key={order._id}
                                                     className="group hover:bg-[#f9f9f9] transition-colors"
                                                 >
-                                                    <td className="py-6 text-xs font-bold text-[#1a1c1c]">
+                                                    <td className="py-4 sm:py-6 text-[11px] sm:text-xs font-bold text-[#1a1c1c]">
                                                         #{order._id?.slice(-6).toUpperCase()}
                                                     </td>
-                                                    <td className="py-6">
-                                                        <div className="flex items-center space-x-3">
-                                                            <div className="w-8 h-8 bg-[#eeeeee] rounded-full overflow-hidden shrink-0">
+                                                    <td className="py-4 sm:py-6">
+                                                        <div className="flex items-center space-x-2.5 sm:space-x-3">
+                                                            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#eeeeee] rounded-full overflow-hidden shrink-0">
                                                                 <img
                                                                     className="w-full h-full object-cover grayscale"
                                                                     src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
@@ -318,12 +317,12 @@ const AdminDashboard = () => {
                                                                     alt={clientName}
                                                                 />
                                                             </div>
-                                                            <span className="text-xs font-label text-[#1a1c1c] truncate max-w-[150px]">
+                                                            <span className="text-[11px] sm:text-xs font-label text-[#1a1c1c] truncate max-w-[110px] sm:max-w-[150px]">
                                                                 {clientName}
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="py-6 text-xs text-[#777777]">
+                                                    <td className="py-4 sm:py-6 text-[11px] sm:text-xs text-[#777777]">
                                                         {order.createdAt
                                                             ? new Date(order.createdAt).toLocaleDateString("en-US", {
                                                                 day: "numeric",
@@ -332,25 +331,25 @@ const AdminDashboard = () => {
                                                             })
                                                             : "N/A"}
                                                     </td>
-                                                    <td className="py-6">
-                                                        <span className="text-[9px] uppercase tracking-widest font-bold px-2 py-1 bg-[#f3f3f3] text-[#1a1c1c]">
+                                                    <td className="py-4 sm:py-6">
+                                                        <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 sm:py-1 bg-[#f3f3f3] text-[#1a1c1c]">
                                                             {order.orderStatus || "Pending"}
                                                         </span>
                                                     </td>
-                                                    <td className="py-6 text-xs font-bold text-[#1a1c1c]">
+                                                    <td className="py-4 sm:py-6 text-[11px] sm:text-xs font-bold text-[#1a1c1c]">
                                                         Rs. {(order.totalAmount || 0).toLocaleString()}
                                                     </td>
-                                                    <td className="py-6 flex justify-end mr-2">
-                                                        <span className="text-[#c6c6c6] cursor-pointer hover:text-black transition-colors">
-                                                            <MdMoreHoriz size={23} />
-                                                        </span>
+                                                    <td className="py-4 sm:py-6 text-right">
+                                                        <button className="text-[#c6c6c6] hover:text-black transition-colors inline-flex justify-end">
+                                                            <MdMoreHoriz size={20} />
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             );
                                         })
                                     ) : (
                                         <tr>
-                                            <td colSpan="6" className="py-8 text-center text-sm text-[#777777]">
+                                            <td colSpan="6" className="py-8 text-center text-xs sm:text-sm text-[#777777]">
                                                 No recent orders found.
                                             </td>
                                         </tr>

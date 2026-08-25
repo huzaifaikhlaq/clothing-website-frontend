@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchCart } from "../features/cart/cartTrunks.js"
+
 
 // Layouts 
 import Layout from "../components/layout/Layout";
@@ -41,12 +39,7 @@ import AdminProtected from "../middlewares/AdminProtected.jsx";
 
 export default function App() {
 
-    const dispatch = useDispatch();
-    const token = sessionStorage.getItem("token");
-
-    useEffect(() => {
-        dispatch(fetchCart());
-    }, [dispatch, token]);
+  
 
     return (
         <BrowserRouter>
@@ -68,9 +61,8 @@ export default function App() {
                     {/* auth middleware */}
                     <Route path="/profile" element={<AuthProtected><Profile /></AuthProtected>} />
                     {/* Checkout flow */}
-                    {/* <Route path="/cart" element={<AuthProtected><Cart /></AuthProtected>} /> */}
                     <Route path="/cart" element={<Cart />} />
-                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/checkout" element={<AuthProtected><Checkout /></AuthProtected>} />
                     <Route path="/review" element={<ReviewOrder />} />
 
                     {/* 404 Page  */}

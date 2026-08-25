@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -9,12 +10,20 @@ import { IoClose } from "react-icons/io5";
 import { HiPlus } from "react-icons/hi";
 import { FaMinus } from "react-icons/fa6";
 
-import {  removeItem, updateCartItem } from "../features/cart/cartTrunks.js";
+import { removeItem, updateCartItem } from "../features/cart/cartTrunks.js";
+import { fetchCart } from "../features/cart/cartTrunks.js";
 
 const Cart = () => {
     const dispatch = useDispatch();
 
     const { items: cartItems, totalAmount, loading, error } = useSelector((state) => state.cart);
+
+    const token = sessionStorage.getItem("token");
+
+    useEffect(() => {
+        dispatch(fetchCart());
+    }, [dispatch, token]);
+
 
     const handleRemoveItem = (productId, size, color) => {
         dispatch(
