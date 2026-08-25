@@ -68,7 +68,8 @@ export default function App() {
                     {/* auth middleware */}
                     <Route path="/profile" element={<AuthProtected><Profile /></AuthProtected>} />
                     {/* Checkout flow */}
-                    <Route path="/cart" element={<AuthProtected><Cart /></AuthProtected>} />
+                    {/* <Route path="/cart" element={<AuthProtected><Cart /></AuthProtected>} /> */}
+                    <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/review" element={<ReviewOrder />} />
 

@@ -25,3 +25,4 @@ export const clearCart = async () => {
     return response.data;
 };
 
+// export const mergeGuestCart

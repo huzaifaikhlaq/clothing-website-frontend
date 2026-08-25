@@ -72,3 +72,22 @@ export const clearCartItems = createAsyncThunk(
         }
     }
 );
+
+// mergeCartGuest 
+
+export const mergeGuestCart = createAsyncThunk(
+    "cart/mergeGuestCart",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.post("/cart/merge");
+
+            return response.data;
+
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message ||
+                "Failed to merge guest cart"
+            );
+        }
+    }
+);

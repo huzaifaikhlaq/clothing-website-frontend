@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCart, addCartItem, clearCartItems, removeItem, updateCartItem } from "./cartTrunks";
+import { fetchCart, addCartItem, clearCartItems, removeItem, updateCartItem, mergeGuestCart } from "./cartTrunks";
 
 const initialState = {
     items: [],
@@ -96,7 +96,30 @@ const cartSlice = createSlice({
             .addCase(clearCartItems.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
-            });
+            })
+
+            .addCase(mergeGuestCart.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+
+            // ===== Merge GuestCart ====
+
+            .addCase(mergeGuestCart.fulfilled, (state, action) => {
+                state.loading = false;
+
+                state.items =
+                    action.payload?.cart?.items || [];
+
+                state.totalAmount =
+                    action.payload?.cart?.totalAmount || 0;
+            })
+
+            .addCase(mergeGuestCart.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.payload || action.error.message;
+            })
     },
 });
 
