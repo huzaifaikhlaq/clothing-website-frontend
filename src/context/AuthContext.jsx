@@ -26,16 +26,20 @@ export function AuthProvider({ children }) {
         setToken(token);
 
         sessionStorage.setItem("user", JSON.stringify(user));
+
         sessionStorage.setItem("token", token);
 
         try {
-            await api.post("/cart/merge");
+            const response = await api.post("/cart/merge");
 
-            console.log("Guest cart merged successfully");
+            console.log("Guest cart merged:", response.data);
+
         } catch (error) {
+
             console.error(
                 "Guest cart merge failed:",
-                error.response?.data?.message || error.message
+                error.response?.data?.message ||
+                error.message
             );
         }
     };
