@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
         try {
             const response = await api.post("/cart/merge");
 
-            console.log("Guest cart merged:", response.data);
+          
 
         } catch (error) {
 
