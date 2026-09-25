@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { signin, signup } from '../hooks/useAuth';
 import { useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 import { useAuthContext } from '../context/AuthContext';
 
@@ -57,8 +58,17 @@ const Auth = () => {
 
     const from = location.state?.from?.pathname;
 
-    const getPostAuthPath = (user) =>
-        user?.role === "admin" ? "/admin/overview" : from || "/profile";
+    const getPostAuthPath = (user, token) => {
+        let role = user?.role;
+
+        try {
+            role = jwtDecode(token).role ?? role;
+        } catch {
+            // Fall back to the user returned by the auth API.
+        }
+
+        return role === "admin" ? "/admin/overview" : from || "/profile";
+    };
 
     // ===Signin handler===
     const handleSignin = async (e) => {
@@ -76,7 +86,7 @@ const Auth = () => {
 
             login(data.user, data.token);
 
-            navigate(getPostAuthPath(data.user), { replace: true });
+            navigate(getPostAuthPath(data.user, data.token), { replace: true });
 
 
 
@@ -112,7 +122,7 @@ const Auth = () => {
 
             login(data.user, data.token);
 
-            navigate(getPostAuthPath(data.user), { replace: true });
+            navigate(getPostAuthPath(data.user, data.token), { replace: true });
 
             setTimeout(() => setSignupSuccess(false), 3000);
 

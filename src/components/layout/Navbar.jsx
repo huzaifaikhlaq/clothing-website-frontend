@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { TbShoppingBag, TbUser } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useAuthContext } from "../../context/AuthContext";
 
 import { useDispatch } from 'react-redux';
 import { fetchCart } from "../../features/cart/cartTrunks"; 
@@ -42,8 +43,7 @@ export default function Header() {
         };
     }, [lastScrollY]);
 
-    // Get user from session storage
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    const { user } = useAuthContext();
 
     const profilePath =
         user?.role === "admin" ? "/admin/overview" : "/profile";
