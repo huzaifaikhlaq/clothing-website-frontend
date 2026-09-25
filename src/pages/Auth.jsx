@@ -55,7 +55,10 @@ const Auth = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const from = location.state?.from?.pathname
+    const from = location.state?.from?.pathname;
+
+    const getPostAuthPath = (user) =>
+        user?.role === "admin" ? "/admin/overview" : from || "/profile";
 
     // ===Signin handler===
     const handleSignin = async (e) => {
@@ -73,8 +76,7 @@ const Auth = () => {
 
             login(data.user, data.token);
 
-            // Redirect to previous page
-            navigate(from, { replace: true });
+            navigate(getPostAuthPath(data.user), { replace: true });
 
 
 
@@ -110,8 +112,7 @@ const Auth = () => {
 
             login(data.user, data.token);
 
-            // Redirect to previous page
-            navigate(from, { replace: true });
+            navigate(getPostAuthPath(data.user), { replace: true });
 
             setTimeout(() => setSignupSuccess(false), 3000);
 

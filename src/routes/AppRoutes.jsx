@@ -34,6 +34,7 @@ import AdminNotFound from "../pages/admin/AdminNotFound";
 // Middlewares 
 import AuthProtected from "../middlewares/AuthProtected.jsx";
 import AdminProtected from "../middlewares/AdminProtected.jsx";
+import ProfileProtected from "../middlewares/ProfileProtected.jsx";
 
 
 
@@ -50,7 +51,7 @@ export default function App() {
 
 
                 {/* Layout wrapper */}
-                < Route element={<Layout />}>
+                <Route element={<Layout />}>
                     <Route path="/" element={<Home />} />
                     {/* Collections  */}
                     <Route path="/collections" element={<CategoryPage />} />
@@ -59,7 +60,10 @@ export default function App() {
 
                     <Route path="/product/:id" element={<ProductDetail />} />
                     {/* auth middleware */}
-                    <Route path="/profile" element={<AuthProtected><Profile /></AuthProtected>} />
+                    <Route
+                        path="/profile"
+                        element={<AuthProtected><ProfileProtected><Profile /></ProfileProtected></AuthProtected>}
+                    />
                     {/* Checkout flow */}
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<AuthProtected><Checkout /></AuthProtected>} />
@@ -68,7 +72,7 @@ export default function App() {
                     {/* 404 Page  */}
                     <Route path="*" element={<NotFoundPage />} />
 
-                </ Route>
+                </Route>
 
                 {/* Admin Layout  */}
                 <Route element={<AdminProtected><AdminLayout /></AdminProtected>}>
