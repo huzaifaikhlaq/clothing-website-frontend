@@ -1,7 +1,23 @@
 import React from 'react';
 import ProductCard from './ProductCard';
 
-const ProductGrid = ({ products, onEdit, onDelete, isAdmin = true }) => {
+const ProductGrid = ({ products, onEdit, onDelete, isAdmin = true, loading = false, }) => {
+    // Show Boneyard skeletons while products are loading
+    if (loading) {
+        return (
+            <section className="w-full py-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+                    {Array.from({ length: 8 }).map((_, index) => (
+                        <ProductCard
+                            key={`skeleton-${index}`}
+                            isLoading
+                        />
+                    ))}
+                </div>
+            </section>    
+        );
+    }
+
     if (!products || products.length === 0) {
         return (
             <div className="w-full py-20 text-center bg-white border border-[#eeeeee]">
