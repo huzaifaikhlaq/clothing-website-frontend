@@ -7,6 +7,8 @@ import ProductGrid from "../components/product/ProductGrid";
 import { getAllProducts } from "../hooks/useProduct";
 import { getAllCategories } from "../hooks/useCategory";
 
+import { Skeleton } from "boneyard-js/react";
+
 const CategoryPage = () => {
     const { gender: currentGender, subCategory: urlSubCategory } = useParams();
 
@@ -116,7 +118,17 @@ const CategoryPage = () => {
         fetchProducts();
     }, [currentGender, activeSubFilter, currentPage, selectedCategory, activeStatus]);
 
-
+    const skeletonProducts = Array.from({ length: 8 }, (_, index) => ({
+        _id: `skeleton-${index}`,
+        title: "Essential Collection",
+        subtitle: "Modern Essential",
+        gender: currentGender || "men",
+        price: 4999,
+        salePrice: null,
+        images: [
+            "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+        ],
+    }));
 
     const toggleDropdown = (name) => setOpenDropdown((prev) => (prev === name ? null : name));
 
@@ -332,18 +344,16 @@ const CategoryPage = () => {
                 )}
 
                 {/* LOADING & ERROR STATES */}
-                {loading ? (
-                    <div className="py-20 text-center text-zinc-400">
-                        Loading products...
+                {error ? (
+                    <div className="py-20 text-center text-red-500">
+                        {error}
                     </div>
-                ) : error ? (
-                    <div className="py-20 text-center text-red-500">{error}</div>
-                ) : displayedProducts.length > 0 ? (
-                    <ProductGrid products={displayedProducts} />
                 ) : (
-                    <div className="py-20 text-center text-zinc-400 border border-dashed border-zinc-200 rounded-lg">
-                        No items found matching your selection.
-                    </div>
+                    <Skeleton
+                        name="product-grid" loading={loading}
+                        fixture={<ProductGrid products={skeletonProducts} />}>
+                        <ProductGrid products={displayedProducts} />
+                    </Skeleton>
                 )}
 
                 {/* PAGINATION */}

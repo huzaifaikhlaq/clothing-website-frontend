@@ -6,6 +6,8 @@ import ProductGrid from "../components/product/ProductGrid";
 import { getProductById, getAllProducts } from "../hooks/useProduct.js";
 import { addCartItem } from "../features/cart/cartTrunks.js";
 
+import { Skeleton } from "boneyard-js/react";
+
 const ProductDetail = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -24,6 +26,7 @@ const ProductDetail = () => {
     const [activeAccordion, setActiveAccordion] = useState("details");
     const [validationError, setValidationError] = useState("");
     const [isAdding, setIsAdding] = useState(false);
+
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -120,6 +123,28 @@ const ProductDetail = () => {
             </div>
         );
     }
+
+    const productFixture = {
+        _id: "skeleton-product",
+        title: "Essential Oversized Shirt",
+        subtitle: "Architectural Cotton Shirt",
+        description:
+            "A modern essential designed with a relaxed silhouette and premium construction.",
+        gender: "men",
+        badge: "New",
+        price: 7999,
+        salePrice: null,
+        stock: 10,
+        images: [
+            "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+            "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"
+        ],
+        colors: ["Black", "White"],
+        sizes: ["S", "M", "L", "XL"],
+        category: {
+            name: "Shirts"
+        }
+    };
 
     return (
         <main className="pt-15 pb-16 px-4 md:px-8 max-w-7xl mx-auto">
