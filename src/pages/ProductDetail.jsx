@@ -29,38 +29,46 @@ const ProductDetail = () => {
 
 
     useEffect(() => {
-        const fetchProductData = async () => {
-            setLoading(true);
-            setError(null);
-
+        const fetchProduct = async () => {
             try {
+                setLoading(true);
+
+                // Load the main product first
                 const response = await getProductById(id);
-                const currentProduct = response?.result?.product || response?.product || response;
 
-                setProduct(currentProduct);
+                setProduct(response.product);
 
-                if (currentProduct?.images?.length > 0) {
-                    setSelectedImage(currentProduct.images[0]);
-                }
-                if (currentProduct?.colors?.length > 0) {
-                    setSelectedColor(currentProduct.colors[0]);
-                }
-                if (currentProduct?.sizes?.length > 0) {
-                    setSelectedSize(currentProduct.sizes[0]);
-                }
+                // Main product is ready — stop the main loading state
+                setLoading(false);
 
-                const allProductsRes = await getAllProducts();
-                const allProducts = allProductsRes?.result?.products || [];
-                setRelatedProducts(allProducts.filter((p) => p._id !== id));
-            } catch (err) {
-                setError(err.message || "Failed to load product details.");
-            } finally {
+                // Load related products separately
+                try {
+                    const allProductsRes = await getAllProducts({ page: 1, limit: 6 });
+
+                    const allProducts =
+                        allProductsRes?.result?.products || [];
+
+                    setRelatedProducts(
+                        allProducts.filter((p) => p._id !== id)
+                    );
+                } catch (error) {
+                    console.error(
+                        "Failed to load related products:",
+                        error
+                    );
+                }
+            } catch (error) {
+                console.error(
+                    "Failed to load product:",
+                    error
+                );
+
                 setLoading(false);
             }
         };
 
         if (id) {
-            fetchProductData();
+            fetchProduct();
         }
     }, [id]);
 
