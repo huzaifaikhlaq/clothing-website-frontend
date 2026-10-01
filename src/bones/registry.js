@@ -4,9 +4,11 @@ import { registerBones } from 'boneyard-js'
 import { configureBoneyard } from 'boneyard-js/react'
 
 import _product_card from './product-card.bones.json'
+import _product_detail from './product-detail.bones.json'
 
 configureBoneyard({"color":"#eeeeee","darkColor":"#222222","animate":"shimmer","shimmerColor":"#f5f5f5","darkShimmerColor":"#333333"})
 
 registerBones({
   "product-card": _product_card,
+  "product-detail": _product_detail,
 })
